@@ -1,11 +1,11 @@
-﻿<template>
+<template>
   <div class="manage-inventory-page">
     <!-- USE MODAL -->
-    <div v-if="useModalOpen" class="modal-overlay" style="display: flex;">
+    <div v-if="useModalOpen" class="modal-overlay" style="display: flex">
       <div class="modal-box">
         <h2>Update Item Usage</h2>
-        <p style="font-weight:600; text-align:center;">{{ useItemName }}</p>
-        <p style="font-size:0.85rem; margin-top:10px;">Update remaining quantity:</p>
+        <p style="font-weight: 600; text-align: center">{{ useItemName }}</p>
+        <p style="font-size: 0.85rem; margin-top: 10px">Update remaining quantity:</p>
 
         <div class="quantity-selector" id="useQtySelector">
           <div
@@ -13,29 +13,48 @@
             :class="{ selected: selectedUseQuantity === 'low' }"
             data-level="low"
             @click="selectedUseQuantity = 'low'"
-          >Low</div>
+          >
+            Low
+          </div>
           <div
             class="qty-option half"
             :class="{ selected: selectedUseQuantity === 'half' }"
             data-level="half"
             @click="selectedUseQuantity = 'half'"
-          >Half</div>
+          >
+            Half
+          </div>
           <div
             class="qty-option high"
             :class="{ selected: selectedUseQuantity === 'high' }"
             data-level="high"
             @click="selectedUseQuantity = 'high'"
-          >High</div>
+          >
+            High
+          </div>
           <div
             class="qty-option full"
             :class="{ selected: selectedUseQuantity === 'full' }"
             data-level="full"
             @click="selectedUseQuantity = 'full'"
-          >Full</div>
+          >
+            Full
+          </div>
         </div>
 
-        <button @click="finishItem"
-          style="margin-top:10px; background:#fee2e2; color:#b91c1c; border:none; padding:10px; border-radius:14px; font-weight:600; cursor:pointer;">
+        <button
+          @click="finishItem"
+          style="
+            margin-top: 10px;
+            background: #fee2e2;
+            color: #b91c1c;
+            border: none;
+            padding: 10px;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+          "
+        >
           Finish Item (Remove)
         </button>
 
@@ -47,12 +66,12 @@
     </div>
 
     <!-- ADD ITEM MODAL -->
-    <div v-if="addModalOpen" class="modal-overlay" style="display: flex;">
+    <div v-if="addModalOpen" class="modal-overlay" style="display: flex">
       <div class="modal-box">
         <h2>Add New Food Item</h2>
 
-        <input type="text" v-model="newItem.name" placeholder="Name">
-        <input type="text" v-model="newItem.desc" placeholder="Short Description">
+        <input type="text" v-model="newItem.name" placeholder="Name" />
+        <input type="text" v-model="newItem.desc" placeholder="Short Description" />
 
         <div class="row">
           <div class="field-stack">
@@ -64,8 +83,14 @@
               :class="{ 'has-date': !!newItem.expiryDate }"
               type="date"
               :min="todayDate"
+            />
+            <div
+              class="expiry-preview"
+              :class="{
+                empty: !newItem.expiryDate,
+                urgent: newItemExpiryDays !== null && newItemExpiryDays <= 3,
+              }"
             >
-            <div class="expiry-preview" :class="{ empty: !newItem.expiryDate, urgent: newItemExpiryDays !== null && newItemExpiryDays <= 3 }">
               {{ newItemExpiryLabel }}
             </div>
           </div>
@@ -75,7 +100,7 @@
             <option value="freezer">Freezer</option>
             <option value="counter">Countertop</option>
           </select>
-          <input type="text" v-model="newItem.volume" placeholder="Qty">
+          <input type="text" v-model="newItem.volume" placeholder="Qty" />
         </div>
 
         <!-- STORAGE SELECT -->
@@ -85,33 +110,44 @@
             :class="{ active: selectedStorage === 'freezer' }"
             data-type="freezer"
             @click="selectedStorage = 'freezer'"
-          >Freezer</button>
+          >
+            Freezer
+          </button>
           <button
             class="storage-btn"
             :class="{ active: selectedStorage === 'pantry' }"
             data-type="pantry"
             @click="selectedStorage = 'pantry'"
-          >Pantry</button>
+          >
+            Pantry
+          </button>
           <button
             class="storage-btn"
             :class="{ active: selectedStorage === 'fridge' }"
             data-type="fridge"
             @click="selectedStorage = 'fridge'"
-          >Fridge</button>
+          >
+            Fridge
+          </button>
           <button
             class="storage-btn"
             :class="{ active: selectedStorage === 'counter' }"
             data-type="counter"
             @click="selectedStorage = 'counter'"
-          >Countertop</button>
+          >
+            Countertop
+          </button>
         </div>
 
         <div>
-          <p style="font-size: 0.85rem; font-weight: 600; margin-top: 10px;">Quantity Level</p>
+          <p style="font-size: 0.85rem; font-weight: 600; margin-top: 10px">Quantity Level</p>
 
           <div class="qty-progress-wrapper">
             <div class="qty-progress-bar">
-              <div class="qty-progress-fill" :style="{ width: qtyProgress.percent, background: qtyProgress.color }"></div>
+              <div
+                class="qty-progress-fill"
+                :style="{ width: qtyProgress.percent, background: qtyProgress.color }"
+              ></div>
             </div>
             <div class="qty-progress-label">{{ qtyProgress.label }}</div>
           </div>
@@ -122,25 +158,33 @@
               :class="{ selected: selectedQuantityLevel === 'low' }"
               data-level="low"
               @click="setQuantityLevel('low')"
-            >Low</div>
+            >
+              Low
+            </div>
             <div
               class="qty-option half"
               :class="{ selected: selectedQuantityLevel === 'half' }"
               data-level="half"
               @click="setQuantityLevel('half')"
-            >Half</div>
+            >
+              Half
+            </div>
             <div
               class="qty-option high"
               :class="{ selected: selectedQuantityLevel === 'high' }"
               data-level="high"
               @click="setQuantityLevel('high')"
-            >High</div>
+            >
+              High
+            </div>
             <div
               class="qty-option full"
               :class="{ selected: selectedQuantityLevel === 'full' }"
               data-level="full"
               @click="setQuantityLevel('full')"
-            >Full</div>
+            >
+              Full
+            </div>
           </div>
         </div>
 
@@ -152,6 +196,22 @@
     </div>
 
     <div class="dashboard">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">🌿 PantryPal</div>
+        <nav>
+          <div
+            v-for="item in navItems"
+            :key="item.label"
+            class="nav-item"
+            :class="{ active: isActive(item.route) }"
+            @click="navigateTo(item.route)"
+          >
+            <span class="nav-dot"></span>
+            {{ item.label }}
+          </div>
+        </nav>
+      </aside>
       <aside class="sidebar">
         <div class="logo-area">
           <div class="logo-icon"><i class="fas fa-utensils"></i></div>
@@ -188,7 +248,7 @@
           <span>Settings</span>
         </div>
 
-        <hr>
+        <hr />
       </aside>
 
       <div class="main-content">
@@ -197,41 +257,91 @@
           <div class="top-bar-actions">
             <div class="search-wrapper">
               <i class="fas fa-search"></i>
-              <input type="text" v-model="searchQuery" placeholder="Search any food (milk, rice, ice cream...)" autocomplete="off">
+              <input
+                type="text"
+                v-model="searchQuery"
+                placeholder="Search any food (milk, rice, ice cream...)"
+                autocomplete="off"
+              />
             </div>
             <div class="action-icons"><i class="fas fa-sliders-h"></i></div>
           </div>
         </div>
 
         <!-- ALL CATEGORY -->
-        <div class="storage-category" :class="{ expanded: expandedCategories.all }" id="allCategory">
+        <div
+          class="storage-category"
+          :class="{ expanded: expandedCategories.all }"
+          id="allCategory"
+        >
           <div class="category-header" @click="toggleCategory('all')">
-            <div class="cat-title"><i class="fas fa-boxes"></i><h2>All Storage</h2><div class="cat-badge">{{ getCategoryCount('all') }} items</div></div>
+            <div class="cat-title">
+              <i class="fas fa-boxes"></i>
+              <h2>All Storage</h2>
+              <div class="cat-badge">{{ getCategoryCount('all') }} items</div>
+            </div>
             <div class="expand-cat-icon"><i class="fas fa-chevron-down"></i></div>
           </div>
           <div class="category-items">
             <div class="food-grid" data-category="all" id="allGrid">
-              <div v-for="item in getFilteredAndSortedItems('all')" :key="item.id" class="food-item-card" :class="{ 'selected-for-donation': selectedDonationIds.has(item.id), 'hidden-by-search': isHiddenBySearch(item) }" :data-food-id="item.id" :data-food-name="item.name" :data-search-terms="`${item.name} ${item.volume} ${item.searchTerms}`" :data-category="item.category">
+              <div
+                v-for="item in getFilteredAndSortedItems('all')"
+                :key="item.id"
+                class="food-item-card"
+                :class="{
+                  'selected-for-donation': selectedDonationIds.has(item.id),
+                  'hidden-by-search': isHiddenBySearch(item),
+                }"
+                :data-food-id="item.id"
+                :data-food-name="item.name"
+                :data-search-terms="`${item.name} ${item.volume} ${item.searchTerms}`"
+                :data-category="item.category"
+              >
                 <div class="checkbox-overlay">
-                  <input type="checkbox" class="donation-checkbox" :checked="selectedDonationIds.has(item.id)" @change="toggleDonationSelection(item.id)">
+                  <input
+                    type="checkbox"
+                    class="donation-checkbox"
+                    :checked="selectedDonationIds.has(item.id)"
+                    @change="toggleDonationSelection(item.id)"
+                  />
                 </div>
                 <div class="food-preview">
                   <span class="food-name">{{ escapeHtml(item.name) }}</span>
                   <span class="food-volume">{{ item.volume }}</span>
                 </div>
                 <div class="food-details-mini">
-                  <span v-if="item.expiryDays <= 3" class="expiry-warning"><i class="fas fa-exclamation-triangle"></i> expires in {{ item.expiryDays }}d</span>
+                  <span v-if="item.expiryDays <= 3" class="expiry-warning"
+                    ><i class="fas fa-exclamation-triangle"></i> expires in
+                    {{ item.expiryDays }}d</span
+                  >
                   <span v-else><i class="fas fa-clock"></i> Exp: {{ item.expiryDays }} days</span>
                   <span><i class="fas fa-map-marker-alt"></i> {{ item.location }}</span>
                 </div>
                 <div class="usage-bar">
-                  <div class="usage-fill" :class="item.quantityLevel || 'high'" :style="{ width: quantityWidths[item.quantityLevel as keyof typeof quantityWidths] || quantityWidths.high }"></div>
+                  <div
+                    class="usage-fill"
+                    :class="item.quantityLevel || 'high'"
+                    :style="{
+                      width:
+                        quantityWidths[item.quantityLevel as keyof typeof quantityWidths] ||
+                        quantityWidths.high,
+                    }"
+                  ></div>
                 </div>
-                <span class="quantity-label" :class="item.quantityLevel || 'high'">{{ quantityLabels[item.quantityLevel as keyof typeof quantityLabels] || quantityLabels.high }}</span>
+                <span class="quantity-label" :class="item.quantityLevel || 'high'">{{
+                  quantityLabels[item.quantityLevel as keyof typeof quantityLabels] ||
+                  quantityLabels.high
+                }}</span>
                 <div class="food-extra-actions">
-                  <button class="mini-btn delete-item" @click="deleteItem(item.id)"><i class="fas fa-trash"></i> Delete</button>
-                  <button class="mini-btn use-item" @click="openUseModal(item.id)"><i class="fas fa-check"></i> Use</button>
-                  <button class="mini-btn donate-mini" @click="singleDonate(item.id)"><i class="fas fa-hand-holding-heart"></i> Donate</button>
+                  <button class="mini-btn delete-item" @click="deleteItem(item.id)">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                  <button class="mini-btn use-item" @click="openUseModal(item.id)">
+                    <i class="fas fa-check"></i> Use
+                  </button>
+                  <button class="mini-btn donate-mini" @click="singleDonate(item.id)">
+                    <i class="fas fa-hand-holding-heart"></i> Donate
+                  </button>
                 </div>
               </div>
             </div>
@@ -239,34 +349,79 @@
         </div>
 
         <!-- FRIDGE CATEGORY -->
-        <div class="storage-category" :class="{ expanded: expandedCategories.fridge }" id="fridgeCategory">
+        <div
+          class="storage-category"
+          :class="{ expanded: expandedCategories.fridge }"
+          id="fridgeCategory"
+        >
           <div class="category-header" @click="toggleCategory('fridge')">
-            <div class="cat-title"><i class="fas fa-temperature-low"></i><h2>Fridge</h2><div class="cat-badge">{{ getCategoryCount('fridge') }} items</div></div>
+            <div class="cat-title">
+              <i class="fas fa-temperature-low"></i>
+              <h2>Fridge</h2>
+              <div class="cat-badge">{{ getCategoryCount('fridge') }} items</div>
+            </div>
             <div class="expand-cat-icon"><i class="fas fa-chevron-down"></i></div>
           </div>
           <div class="category-items">
             <div class="food-grid" data-category="fridge" id="fridgeGrid">
-              <div v-for="item in getFilteredAndSortedItems('fridge')" :key="item.id" class="food-item-card" :class="{ 'selected-for-donation': selectedDonationIds.has(item.id), 'hidden-by-search': isHiddenBySearch(item) }" :data-food-id="item.id" :data-food-name="item.name" :data-search-terms="`${item.name} ${item.volume} ${item.searchTerms}`" :data-category="item.category">
+              <div
+                v-for="item in getFilteredAndSortedItems('fridge')"
+                :key="item.id"
+                class="food-item-card"
+                :class="{
+                  'selected-for-donation': selectedDonationIds.has(item.id),
+                  'hidden-by-search': isHiddenBySearch(item),
+                }"
+                :data-food-id="item.id"
+                :data-food-name="item.name"
+                :data-search-terms="`${item.name} ${item.volume} ${item.searchTerms}`"
+                :data-category="item.category"
+              >
                 <div class="checkbox-overlay">
-                  <input type="checkbox" class="donation-checkbox" :checked="selectedDonationIds.has(item.id)" @change="toggleDonationSelection(item.id)">
+                  <input
+                    type="checkbox"
+                    class="donation-checkbox"
+                    :checked="selectedDonationIds.has(item.id)"
+                    @change="toggleDonationSelection(item.id)"
+                  />
                 </div>
                 <div class="food-preview">
                   <span class="food-name">{{ escapeHtml(item.name) }}</span>
                   <span class="food-volume">{{ item.volume }}</span>
                 </div>
                 <div class="food-details-mini">
-                  <span v-if="item.expiryDays <= 3" class="expiry-warning"><i class="fas fa-exclamation-triangle"></i> expires in {{ item.expiryDays }}d</span>
+                  <span v-if="item.expiryDays <= 3" class="expiry-warning"
+                    ><i class="fas fa-exclamation-triangle"></i> expires in
+                    {{ item.expiryDays }}d</span
+                  >
                   <span v-else><i class="fas fa-clock"></i> Exp: {{ item.expiryDays }} days</span>
                   <span><i class="fas fa-map-marker-alt"></i> {{ item.location }}</span>
                 </div>
                 <div class="usage-bar">
-                  <div class="usage-fill" :class="item.quantityLevel || 'high'" :style="{ width: quantityWidths[item.quantityLevel as keyof typeof quantityWidths] || quantityWidths.high }"></div>
+                  <div
+                    class="usage-fill"
+                    :class="item.quantityLevel || 'high'"
+                    :style="{
+                      width:
+                        quantityWidths[item.quantityLevel as keyof typeof quantityWidths] ||
+                        quantityWidths.high,
+                    }"
+                  ></div>
                 </div>
-                <span class="quantity-label" :class="item.quantityLevel || 'high'">{{ quantityLabels[item.quantityLevel as keyof typeof quantityLabels] || quantityLabels.high }}</span>
+                <span class="quantity-label" :class="item.quantityLevel || 'high'">{{
+                  quantityLabels[item.quantityLevel as keyof typeof quantityLabels] ||
+                  quantityLabels.high
+                }}</span>
                 <div class="food-extra-actions">
-                  <button class="mini-btn delete-item" @click="deleteItem(item.id)"><i class="fas fa-trash"></i> Delete</button>
-                  <button class="mini-btn use-item" @click="openUseModal(item.id)"><i class="fas fa-check"></i> Use</button>
-                  <button class="mini-btn donate-mini" @click="singleDonate(item.id)"><i class="fas fa-hand-holding-heart"></i> Donate</button>
+                  <button class="mini-btn delete-item" @click="deleteItem(item.id)">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                  <button class="mini-btn use-item" @click="openUseModal(item.id)">
+                    <i class="fas fa-check"></i> Use
+                  </button>
+                  <button class="mini-btn donate-mini" @click="singleDonate(item.id)">
+                    <i class="fas fa-hand-holding-heart"></i> Donate
+                  </button>
                 </div>
               </div>
             </div>
@@ -274,34 +429,79 @@
         </div>
 
         <!-- PANTRY CATEGORY -->
-        <div class="storage-category" :class="{ expanded: expandedCategories.pantry }" id="pantryCategory">
+        <div
+          class="storage-category"
+          :class="{ expanded: expandedCategories.pantry }"
+          id="pantryCategory"
+        >
           <div class="category-header" @click="toggleCategory('pantry')">
-            <div class="cat-title"><i class="fas fa-cabinet-filing"></i><h2>Pantry</h2><div class="cat-badge">{{ getCategoryCount('pantry') }} items</div></div>
+            <div class="cat-title">
+              <i class="fas fa-cabinet-filing"></i>
+              <h2>Pantry</h2>
+              <div class="cat-badge">{{ getCategoryCount('pantry') }} items</div>
+            </div>
             <div class="expand-cat-icon"><i class="fas fa-chevron-down"></i></div>
           </div>
           <div class="category-items">
             <div class="food-grid" data-category="pantry" id="pantryGrid">
-              <div v-for="item in getFilteredAndSortedItems('pantry')" :key="item.id" class="food-item-card" :class="{ 'selected-for-donation': selectedDonationIds.has(item.id), 'hidden-by-search': isHiddenBySearch(item) }" :data-food-id="item.id" :data-food-name="item.name" :data-search-terms="`${item.name} ${item.volume} ${item.searchTerms}`" :data-category="item.category">
+              <div
+                v-for="item in getFilteredAndSortedItems('pantry')"
+                :key="item.id"
+                class="food-item-card"
+                :class="{
+                  'selected-for-donation': selectedDonationIds.has(item.id),
+                  'hidden-by-search': isHiddenBySearch(item),
+                }"
+                :data-food-id="item.id"
+                :data-food-name="item.name"
+                :data-search-terms="`${item.name} ${item.volume} ${item.searchTerms}`"
+                :data-category="item.category"
+              >
                 <div class="checkbox-overlay">
-                  <input type="checkbox" class="donation-checkbox" :checked="selectedDonationIds.has(item.id)" @change="toggleDonationSelection(item.id)">
+                  <input
+                    type="checkbox"
+                    class="donation-checkbox"
+                    :checked="selectedDonationIds.has(item.id)"
+                    @change="toggleDonationSelection(item.id)"
+                  />
                 </div>
                 <div class="food-preview">
                   <span class="food-name">{{ escapeHtml(item.name) }}</span>
                   <span class="food-volume">{{ item.volume }}</span>
                 </div>
                 <div class="food-details-mini">
-                  <span v-if="item.expiryDays <= 3" class="expiry-warning"><i class="fas fa-exclamation-triangle"></i> expires in {{ item.expiryDays }}d</span>
+                  <span v-if="item.expiryDays <= 3" class="expiry-warning"
+                    ><i class="fas fa-exclamation-triangle"></i> expires in
+                    {{ item.expiryDays }}d</span
+                  >
                   <span v-else><i class="fas fa-clock"></i> Exp: {{ item.expiryDays }} days</span>
                   <span><i class="fas fa-map-marker-alt"></i> {{ item.location }}</span>
                 </div>
                 <div class="usage-bar">
-                  <div class="usage-fill" :class="item.quantityLevel || 'high'" :style="{ width: quantityWidths[item.quantityLevel as keyof typeof quantityWidths] || quantityWidths.high }"></div>
+                  <div
+                    class="usage-fill"
+                    :class="item.quantityLevel || 'high'"
+                    :style="{
+                      width:
+                        quantityWidths[item.quantityLevel as keyof typeof quantityWidths] ||
+                        quantityWidths.high,
+                    }"
+                  ></div>
                 </div>
-                <span class="quantity-label" :class="item.quantityLevel || 'high'">{{ quantityLabels[item.quantityLevel as keyof typeof quantityLabels] || quantityLabels.high }}</span>
+                <span class="quantity-label" :class="item.quantityLevel || 'high'">{{
+                  quantityLabels[item.quantityLevel as keyof typeof quantityLabels] ||
+                  quantityLabels.high
+                }}</span>
                 <div class="food-extra-actions">
-                  <button class="mini-btn delete-item" @click="deleteItem(item.id)"><i class="fas fa-trash"></i> Delete</button>
-                  <button class="mini-btn use-item" @click="openUseModal(item.id)"><i class="fas fa-check"></i> Use</button>
-                  <button class="mini-btn donate-mini" @click="singleDonate(item.id)"><i class="fas fa-hand-holding-heart"></i> Donate</button>
+                  <button class="mini-btn delete-item" @click="deleteItem(item.id)">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                  <button class="mini-btn use-item" @click="openUseModal(item.id)">
+                    <i class="fas fa-check"></i> Use
+                  </button>
+                  <button class="mini-btn donate-mini" @click="singleDonate(item.id)">
+                    <i class="fas fa-hand-holding-heart"></i> Donate
+                  </button>
                 </div>
               </div>
             </div>
@@ -309,34 +509,79 @@
         </div>
 
         <!-- FREEZER CATEGORY -->
-        <div class="storage-category" :class="{ expanded: expandedCategories.freezer }" id="freezerCategory">
+        <div
+          class="storage-category"
+          :class="{ expanded: expandedCategories.freezer }"
+          id="freezerCategory"
+        >
           <div class="category-header" @click="toggleCategory('freezer')">
-            <div class="cat-title"><i class="fas fa-snowflake"></i><h2>Freezer</h2><div class="cat-badge">{{ getCategoryCount('freezer') }} items</div></div>
+            <div class="cat-title">
+              <i class="fas fa-snowflake"></i>
+              <h2>Freezer</h2>
+              <div class="cat-badge">{{ getCategoryCount('freezer') }} items</div>
+            </div>
             <div class="expand-cat-icon"><i class="fas fa-chevron-down"></i></div>
           </div>
           <div class="category-items">
             <div class="food-grid" data-category="freezer" id="freezerGrid">
-              <div v-for="item in getFilteredAndSortedItems('freezer')" :key="item.id" class="food-item-card" :class="{ 'selected-for-donation': selectedDonationIds.has(item.id), 'hidden-by-search': isHiddenBySearch(item) }" :data-food-id="item.id" :data-food-name="item.name" :data-search-terms="`${item.name} ${item.volume} ${item.searchTerms}`" :data-category="item.category">
+              <div
+                v-for="item in getFilteredAndSortedItems('freezer')"
+                :key="item.id"
+                class="food-item-card"
+                :class="{
+                  'selected-for-donation': selectedDonationIds.has(item.id),
+                  'hidden-by-search': isHiddenBySearch(item),
+                }"
+                :data-food-id="item.id"
+                :data-food-name="item.name"
+                :data-search-terms="`${item.name} ${item.volume} ${item.searchTerms}`"
+                :data-category="item.category"
+              >
                 <div class="checkbox-overlay">
-                  <input type="checkbox" class="donation-checkbox" :checked="selectedDonationIds.has(item.id)" @change="toggleDonationSelection(item.id)">
+                  <input
+                    type="checkbox"
+                    class="donation-checkbox"
+                    :checked="selectedDonationIds.has(item.id)"
+                    @change="toggleDonationSelection(item.id)"
+                  />
                 </div>
                 <div class="food-preview">
                   <span class="food-name">{{ escapeHtml(item.name) }}</span>
                   <span class="food-volume">{{ item.volume }}</span>
                 </div>
                 <div class="food-details-mini">
-                  <span v-if="item.expiryDays <= 3" class="expiry-warning"><i class="fas fa-exclamation-triangle"></i> expires in {{ item.expiryDays }}d</span>
+                  <span v-if="item.expiryDays <= 3" class="expiry-warning"
+                    ><i class="fas fa-exclamation-triangle"></i> expires in
+                    {{ item.expiryDays }}d</span
+                  >
                   <span v-else><i class="fas fa-clock"></i> Exp: {{ item.expiryDays }} days</span>
                   <span><i class="fas fa-map-marker-alt"></i> {{ item.location }}</span>
                 </div>
                 <div class="usage-bar">
-                  <div class="usage-fill" :class="item.quantityLevel || 'high'" :style="{ width: quantityWidths[item.quantityLevel as keyof typeof quantityWidths] || quantityWidths.high }"></div>
+                  <div
+                    class="usage-fill"
+                    :class="item.quantityLevel || 'high'"
+                    :style="{
+                      width:
+                        quantityWidths[item.quantityLevel as keyof typeof quantityWidths] ||
+                        quantityWidths.high,
+                    }"
+                  ></div>
                 </div>
-                <span class="quantity-label" :class="item.quantityLevel || 'high'">{{ quantityLabels[item.quantityLevel as keyof typeof quantityLabels] || quantityLabels.high }}</span>
+                <span class="quantity-label" :class="item.quantityLevel || 'high'">{{
+                  quantityLabels[item.quantityLevel as keyof typeof quantityLabels] ||
+                  quantityLabels.high
+                }}</span>
                 <div class="food-extra-actions">
-                  <button class="mini-btn delete-item" @click="deleteItem(item.id)"><i class="fas fa-trash"></i> Delete</button>
-                  <button class="mini-btn use-item" @click="openUseModal(item.id)"><i class="fas fa-check"></i> Use</button>
-                  <button class="mini-btn donate-mini" @click="singleDonate(item.id)"><i class="fas fa-hand-holding-heart"></i> Donate</button>
+                  <button class="mini-btn delete-item" @click="deleteItem(item.id)">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                  <button class="mini-btn use-item" @click="openUseModal(item.id)">
+                    <i class="fas fa-check"></i> Use
+                  </button>
+                  <button class="mini-btn donate-mini" @click="singleDonate(item.id)">
+                    <i class="fas fa-hand-holding-heart"></i> Donate
+                  </button>
                 </div>
               </div>
             </div>
@@ -344,34 +589,79 @@
         </div>
 
         <!-- COUNTERTOP CATEGORY -->
-        <div class="storage-category" :class="{ expanded: expandedCategories.counter }" id="counterCategory">
+        <div
+          class="storage-category"
+          :class="{ expanded: expandedCategories.counter }"
+          id="counterCategory"
+        >
           <div class="category-header" @click="toggleCategory('counter')">
-            <div class="cat-title"><i class="fas fa-blender"></i><h2>Countertop</h2><div class="cat-badge">{{ getCategoryCount('counter') }} items</div></div>
+            <div class="cat-title">
+              <i class="fas fa-blender"></i>
+              <h2>Countertop</h2>
+              <div class="cat-badge">{{ getCategoryCount('counter') }} items</div>
+            </div>
             <div class="expand-cat-icon"><i class="fas fa-chevron-down"></i></div>
           </div>
           <div class="category-items">
             <div class="food-grid" data-category="counter" id="counterGrid">
-              <div v-for="item in getFilteredAndSortedItems('counter')" :key="item.id" class="food-item-card" :class="{ 'selected-for-donation': selectedDonationIds.has(item.id), 'hidden-by-search': isHiddenBySearch(item) }" :data-food-id="item.id" :data-food-name="item.name" :data-search-terms="`${item.name} ${item.volume} ${item.searchTerms}`" :data-category="item.category">
+              <div
+                v-for="item in getFilteredAndSortedItems('counter')"
+                :key="item.id"
+                class="food-item-card"
+                :class="{
+                  'selected-for-donation': selectedDonationIds.has(item.id),
+                  'hidden-by-search': isHiddenBySearch(item),
+                }"
+                :data-food-id="item.id"
+                :data-food-name="item.name"
+                :data-search-terms="`${item.name} ${item.volume} ${item.searchTerms}`"
+                :data-category="item.category"
+              >
                 <div class="checkbox-overlay">
-                  <input type="checkbox" class="donation-checkbox" :checked="selectedDonationIds.has(item.id)" @change="toggleDonationSelection(item.id)">
+                  <input
+                    type="checkbox"
+                    class="donation-checkbox"
+                    :checked="selectedDonationIds.has(item.id)"
+                    @change="toggleDonationSelection(item.id)"
+                  />
                 </div>
                 <div class="food-preview">
                   <span class="food-name">{{ escapeHtml(item.name) }}</span>
                   <span class="food-volume">{{ item.volume }}</span>
                 </div>
                 <div class="food-details-mini">
-                  <span v-if="item.expiryDays <= 3" class="expiry-warning"><i class="fas fa-exclamation-triangle"></i> expires in {{ item.expiryDays }}d</span>
+                  <span v-if="item.expiryDays <= 3" class="expiry-warning"
+                    ><i class="fas fa-exclamation-triangle"></i> expires in
+                    {{ item.expiryDays }}d</span
+                  >
                   <span v-else><i class="fas fa-clock"></i> Exp: {{ item.expiryDays }} days</span>
                   <span><i class="fas fa-map-marker-alt"></i> {{ item.location }}</span>
                 </div>
                 <div class="usage-bar">
-                  <div class="usage-fill" :class="item.quantityLevel || 'high'" :style="{ width: quantityWidths[item.quantityLevel as keyof typeof quantityWidths] || quantityWidths.high }"></div>
+                  <div
+                    class="usage-fill"
+                    :class="item.quantityLevel || 'high'"
+                    :style="{
+                      width:
+                        quantityWidths[item.quantityLevel as keyof typeof quantityWidths] ||
+                        quantityWidths.high,
+                    }"
+                  ></div>
                 </div>
-                <span class="quantity-label" :class="item.quantityLevel || 'high'">{{ quantityLabels[item.quantityLevel as keyof typeof quantityLabels] || quantityLabels.high }}</span>
+                <span class="quantity-label" :class="item.quantityLevel || 'high'">{{
+                  quantityLabels[item.quantityLevel as keyof typeof quantityLabels] ||
+                  quantityLabels.high
+                }}</span>
                 <div class="food-extra-actions">
-                  <button class="mini-btn delete-item" @click="deleteItem(item.id)"><i class="fas fa-trash"></i> Delete</button>
-                  <button class="mini-btn use-item" @click="openUseModal(item.id)"><i class="fas fa-check"></i> Use</button>
-                  <button class="mini-btn donate-mini" @click="singleDonate(item.id)"><i class="fas fa-hand-holding-heart"></i> Donate</button>
+                  <button class="mini-btn delete-item" @click="deleteItem(item.id)">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                  <button class="mini-btn use-item" @click="openUseModal(item.id)">
+                    <i class="fas fa-check"></i> Use
+                  </button>
+                  <button class="mini-btn donate-mini" @click="singleDonate(item.id)">
+                    <i class="fas fa-hand-holding-heart"></i> Donate
+                  </button>
                 </div>
               </div>
             </div>
@@ -379,101 +669,372 @@
         </div>
 
         <!-- NEAR EXPIRY CATEGORY -->
-        <div class="storage-category" :class="{ expanded: expandedCategories.expiry }" id="expiryCategory">
+        <div
+          class="storage-category"
+          :class="{ expanded: expandedCategories.expiry }"
+          id="expiryCategory"
+        >
           <div class="category-header" @click="toggleCategory('expiry')">
-            <div class="cat-title"><i class="fas fa-hourglass-half"></i><h2>Near Expiry</h2><div class="cat-badge">{{ getNearExpiryCount() }} items</div></div>
+            <div class="cat-title">
+              <i class="fas fa-hourglass-half"></i>
+              <h2>Near Expiry</h2>
+              <div class="cat-badge">{{ getNearExpiryCount() }} items</div>
+            </div>
             <div class="expand-cat-icon"><i class="fas fa-chevron-down"></i></div>
           </div>
           <div class="category-items">
             <div class="food-grid" id="expiryGrid">
-              <div v-for="item in getNearExpiryItems()" :key="item.id" class="food-item-card" :class="{ 'selected-for-donation': selectedDonationIds.has(item.id), 'hidden-by-search': isHiddenBySearch(item) }" :data-food-id="item.id" :data-food-name="item.name" :data-search-terms="`${item.name} ${item.volume} ${item.searchTerms}`" :data-category="item.category">
+              <div
+                v-for="item in getNearExpiryItems()"
+                :key="item.id"
+                class="food-item-card"
+                :class="{
+                  'selected-for-donation': selectedDonationIds.has(item.id),
+                  'hidden-by-search': isHiddenBySearch(item),
+                }"
+                :data-food-id="item.id"
+                :data-food-name="item.name"
+                :data-search-terms="`${item.name} ${item.volume} ${item.searchTerms}`"
+                :data-category="item.category"
+              >
                 <div class="checkbox-overlay">
-                  <input type="checkbox" class="donation-checkbox" :checked="selectedDonationIds.has(item.id)" @change="toggleDonationSelection(item.id)">
+                  <input
+                    type="checkbox"
+                    class="donation-checkbox"
+                    :checked="selectedDonationIds.has(item.id)"
+                    @change="toggleDonationSelection(item.id)"
+                  />
                 </div>
                 <div class="food-preview">
                   <span class="food-name">{{ escapeHtml(item.name) }}</span>
                   <span class="food-volume">{{ item.volume }}</span>
                 </div>
                 <div class="food-details-mini">
-                  <span v-if="item.expiryDays <= 3" class="expiry-warning"><i class="fas fa-exclamation-triangle"></i> expires in {{ item.expiryDays }}d</span>
+                  <span v-if="item.expiryDays <= 3" class="expiry-warning"
+                    ><i class="fas fa-exclamation-triangle"></i> expires in
+                    {{ item.expiryDays }}d</span
+                  >
                   <span v-else><i class="fas fa-clock"></i> Exp: {{ item.expiryDays }} days</span>
                   <span><i class="fas fa-map-marker-alt"></i> {{ item.location }}</span>
                 </div>
                 <div class="usage-bar">
-                  <div class="usage-fill" :class="item.quantityLevel || 'high'" :style="{ width: quantityWidths[item.quantityLevel as keyof typeof quantityWidths] || quantityWidths.high }"></div>
+                  <div
+                    class="usage-fill"
+                    :class="item.quantityLevel || 'high'"
+                    :style="{
+                      width:
+                        quantityWidths[item.quantityLevel as keyof typeof quantityWidths] ||
+                        quantityWidths.high,
+                    }"
+                  ></div>
                 </div>
-                <span class="quantity-label" :class="item.quantityLevel || 'high'">{{ quantityLabels[item.quantityLevel as keyof typeof quantityLabels] || quantityLabels.high }}</span>
+                <span class="quantity-label" :class="item.quantityLevel || 'high'">{{
+                  quantityLabels[item.quantityLevel as keyof typeof quantityLabels] ||
+                  quantityLabels.high
+                }}</span>
                 <div class="food-extra-actions">
-                  <button class="mini-btn delete-item" @click="deleteItem(item.id)"><i class="fas fa-trash"></i> Delete</button>
-                  <button class="mini-btn use-item" @click="openUseModal(item.id)"><i class="fas fa-check"></i> Use</button>
-                  <button class="mini-btn donate-mini" @click="singleDonate(item.id)"><i class="fas fa-hand-holding-heart"></i> Donate</button>
+                  <button class="mini-btn delete-item" @click="deleteItem(item.id)">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                  <button class="mini-btn use-item" @click="openUseModal(item.id)">
+                    <i class="fas fa-check"></i> Use
+                  </button>
+                  <button class="mini-btn donate-mini" @click="singleDonate(item.id)">
+                    <i class="fas fa-hand-holding-heart"></i> Donate
+                  </button>
                 </div>
               </div>
-              <div v-if="getNearExpiryItems().length === 0" style="padding:20px; text-align:center; color:#7e95b0;">✨ No items near expiry! Great job managing food.</div>
+              <div
+                v-if="getNearExpiryItems().length === 0"
+                style="padding: 20px; text-align: center; color: #7e95b0"
+              >
+                ✨ No items near expiry! Great job managing food.
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <aside class="right-sidebar">
-          <div class="right-box">
-            <div class="bulk-select-controls">
-              <span class="selection-count" id="selectionCount">{{ selectedDonationIds.size }} selected</span>
-              <button class="right-btn" id="selectAllBtn" @click="selectAllVisible"><i class="fas fa-check-double"></i> Select All</button>
-              <button class="right-btn" id="clearSelectionBtn" @click="clearAllSelections"><i class="fas fa-times"></i> Clear</button>
-              <span class="search-results-info" id="searchResultsInfo">{{ searchResultsInfo }}</span>
-            </div>
-
-            <button class="right-btn" id="filterBtn" @click="cycleFilterMode">
-              <i class="fas fa-filter"></i> Filter: {{ getFilterLabel(currentFilter) }}
+        <div class="right-box">
+          <div class="bulk-select-controls">
+            <span class="selection-count" id="selectionCount"
+              >{{ selectedDonationIds.size }} selected</span
+            >
+            <button class="right-btn" id="selectAllBtn" @click="selectAllVisible">
+              <i class="fas fa-check-double"></i> Select All
             </button>
-            <button class="right-btn" id="sortBtn" @click="cycleSortMode">
-              <i class="fas fa-sort"></i> Sort: {{ getSortLabel(currentSort) }}
+            <button class="right-btn" id="clearSelectionBtn" @click="clearAllSelections">
+              <i class="fas fa-times"></i> Clear
             </button>
+            <span class="search-results-info" id="searchResultsInfo">{{ searchResultsInfo }}</span>
           </div>
 
-          <div class="right-box">
-            <button class="donate-bulk-btn" id="donateBulkBtn" :disabled="selectedDonationIds.size === 0" @click="bulkDonateAction">
-              <i class="fas fa-hand-holding-heart"></i> Donate Selected
-            </button>
-          </div>
+          <button class="right-btn" id="filterBtn" @click="cycleFilterMode">
+            <i class="fas fa-filter"></i> Filter: {{ getFilterLabel(currentFilter) }}
+          </button>
+          <button class="right-btn" id="sortBtn" @click="cycleSortMode">
+            <i class="fas fa-sort"></i> Sort: {{ getSortLabel(currentSort) }}
+          </button>
+        </div>
 
-          <div class="right-box">
-            <button class="right-btn">
-              <i class="fas fa-bolt"></i> Meal Plan
-            </button>
-          </div>
+        <div class="right-box">
+          <button
+            class="donate-bulk-btn"
+            id="donateBulkBtn"
+            :disabled="selectedDonationIds.size === 0"
+            @click="bulkDonateAction"
+          >
+            <i class="fas fa-hand-holding-heart"></i> Donate Selected
+          </button>
+        </div>
 
-          <div class="floating-add" id="addRight" @click="openAddModal">
-            +
-          </div>
+        <div class="right-box">
+          <button class="right-btn"><i class="fas fa-bolt"></i> Meal Plan</button>
+        </div>
+
+        <div class="floating-add" id="addRight" @click="openAddModal">+</div>
       </aside>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+
+interface NavItem {
+  label: string
+  route: string
+}
+
+interface InventoryItem {
+  id: number
+  icon: string
+  name: string
+  location: string
+  expiry: string
+  tag: string
+  warning?: boolean
+}
+
+const router = useRouter()
+const route = useRoute()
+
+const navItems = ref<NavItem[]>([
+  { label: 'Dashboard', route: '/' },
+  { label: 'Inventory', route: '/inventory' },
+  { label: 'Meal Plan', route: '/meal-plan' },
+  { label: 'Donation', route: '/donations' },
+  { label: 'Analytics', route: '/analytics' },
+  { label: 'Settings', route: '/settings' },
+])
+
+// Compute active state based on current route
+const isActive = (itemRoute: string) => {
+  if (itemRoute === '/') {
+    return route.path === '/'
+  }
+  return route.path.startsWith(itemRoute)
+}
+
+const inventoryItems = ref<InventoryItem[]>([
+  {
+    id: 1,
+    icon: '🥛',
+    name: 'UltraMilk · 500ml Original',
+    location: 'Fridge',
+    expiry: '6 Apr 2026',
+    tag: '2d left',
+    warning: true,
+  },
+  {
+    id: 2,
+    icon: '🍳',
+    name: 'Shrimp Fried Rice',
+    location: 'Freezer',
+    expiry: '20 Apr 2026',
+    tag: 'Fresh',
+  },
+  {
+    id: 3,
+    icon: '🍗',
+    name: 'Chicken Nuggets',
+    location: 'Freezer',
+    expiry: '25 Apr 2026',
+    tag: 'Fresh',
+  },
+])
+
+const navigateTo = (routePath: string) => {
+  router.push(routePath)
+}
+
 export default {
   name: 'FridgeMaster',
   data() {
     return {
       inventory: [
-        { id: "f1", name: "Susu UltraMilk", volume: "500ml", location: "Middle shelf", expiryDays: 5, category: "fridge", searchTerms: "milk dairy", quantityLevel: "high" },
-        { id: "f2", name: "Fresh Spinach", volume: "200g bag", location: "Veg drawer", expiryDays: 2, category: "fridge", searchTerms: "spinach greens", quantityLevel: "low" },
-        { id: "f3", name: "Greek Yogurt", volume: "750g tub", location: "Upper shelf", expiryDays: 8, category: "fridge", searchTerms: "yogurt probiotic", quantityLevel: "half" },
-        { id: "f4", name: "Cheddar Cheese", volume: "200g block", location: "Dairy zone", expiryDays: 12, category: "fridge", searchTerms: "cheese dairy", quantityLevel: "full" },
-        { id: "f5", name: "Orange Juice", volume: "1L", location: "Door shelf", expiryDays: 6, category: "fridge", searchTerms: "juice citrus", quantityLevel: "high" },
-        { id: "p1", name: "Brown Rice", volume: "2kg bag", location: "Dry shelf", expiryDays: 180, category: "pantry", searchTerms: "rice grain", quantityLevel: "full" },
-        { id: "p2", name: "Canned Tuna", volume: "150g", location: "Cabinet", expiryDays: 90, category: "pantry", searchTerms: "tuna fish canned", quantityLevel: "high" },
-        { id: "p3", name: "Spaghetti Pasta", volume: "500g", location: "Pantry box", expiryDays: 200, category: "pantry", searchTerms: "pasta noodles", quantityLevel: "half" },
-        { id: "p4", name: "Olive Oil", volume: "750ml", location: "Cool shelf", expiryDays: 60, category: "pantry", searchTerms: "oil cooking", quantityLevel: "full" },
-        { id: "z1", name: "Frozen Berries", volume: "400g", location: "Freezer drawer", expiryDays: 45, category: "freezer", searchTerms: "berries frozen fruit", quantityLevel: "high" },
-        { id: "z2", name: "Ice Cream Vanilla", volume: "1L tub", location: "Top freezer", expiryDays: 30, category: "freezer", searchTerms: "icecream dessert", quantityLevel: "half" },
-        { id: "z3", name: "Frozen Veg Mix", volume: "500g", location: "Middle drawer", expiryDays: 60, category: "freezer", searchTerms: "vegetables mix", quantityLevel: "low" },
-        { id: "z4", name: "Chicken Breast", volume: "600g", location: "Freezer bin", expiryDays: 40, category: "freezer", searchTerms: "chicken meat", quantityLevel: "full" },
-        { id: "c1", name: "Avocados", volume: "3 pcs", location: "Fruit bowl", expiryDays: 3, category: "counter", searchTerms: "avocado fruit", quantityLevel: "low" },
-        { id: "c2", name: "Bananas", volume: "5 pcs", location: "Counter hook", expiryDays: 2, category: "counter", searchTerms: "banana fruit", quantityLevel: "half" },
-        { id: "c3", name: "Garlic Bulb", volume: "1 head", location: "Small basket", expiryDays: 14, category: "counter", searchTerms: "garlic spice", quantityLevel: "high" }
+        {
+          id: 'f1',
+          name: 'Susu UltraMilk',
+          volume: '500ml',
+          location: 'Middle shelf',
+          expiryDays: 5,
+          category: 'fridge',
+          searchTerms: 'milk dairy',
+          quantityLevel: 'high',
+        },
+        {
+          id: 'f2',
+          name: 'Fresh Spinach',
+          volume: '200g bag',
+          location: 'Veg drawer',
+          expiryDays: 2,
+          category: 'fridge',
+          searchTerms: 'spinach greens',
+          quantityLevel: 'low',
+        },
+        {
+          id: 'f3',
+          name: 'Greek Yogurt',
+          volume: '750g tub',
+          location: 'Upper shelf',
+          expiryDays: 8,
+          category: 'fridge',
+          searchTerms: 'yogurt probiotic',
+          quantityLevel: 'half',
+        },
+        {
+          id: 'f4',
+          name: 'Cheddar Cheese',
+          volume: '200g block',
+          location: 'Dairy zone',
+          expiryDays: 12,
+          category: 'fridge',
+          searchTerms: 'cheese dairy',
+          quantityLevel: 'full',
+        },
+        {
+          id: 'f5',
+          name: 'Orange Juice',
+          volume: '1L',
+          location: 'Door shelf',
+          expiryDays: 6,
+          category: 'fridge',
+          searchTerms: 'juice citrus',
+          quantityLevel: 'high',
+        },
+        {
+          id: 'p1',
+          name: 'Brown Rice',
+          volume: '2kg bag',
+          location: 'Dry shelf',
+          expiryDays: 180,
+          category: 'pantry',
+          searchTerms: 'rice grain',
+          quantityLevel: 'full',
+        },
+        {
+          id: 'p2',
+          name: 'Canned Tuna',
+          volume: '150g',
+          location: 'Cabinet',
+          expiryDays: 90,
+          category: 'pantry',
+          searchTerms: 'tuna fish canned',
+          quantityLevel: 'high',
+        },
+        {
+          id: 'p3',
+          name: 'Spaghetti Pasta',
+          volume: '500g',
+          location: 'Pantry box',
+          expiryDays: 200,
+          category: 'pantry',
+          searchTerms: 'pasta noodles',
+          quantityLevel: 'half',
+        },
+        {
+          id: 'p4',
+          name: 'Olive Oil',
+          volume: '750ml',
+          location: 'Cool shelf',
+          expiryDays: 60,
+          category: 'pantry',
+          searchTerms: 'oil cooking',
+          quantityLevel: 'full',
+        },
+        {
+          id: 'z1',
+          name: 'Frozen Berries',
+          volume: '400g',
+          location: 'Freezer drawer',
+          expiryDays: 45,
+          category: 'freezer',
+          searchTerms: 'berries frozen fruit',
+          quantityLevel: 'high',
+        },
+        {
+          id: 'z2',
+          name: 'Ice Cream Vanilla',
+          volume: '1L tub',
+          location: 'Top freezer',
+          expiryDays: 30,
+          category: 'freezer',
+          searchTerms: 'icecream dessert',
+          quantityLevel: 'half',
+        },
+        {
+          id: 'z3',
+          name: 'Frozen Veg Mix',
+          volume: '500g',
+          location: 'Middle drawer',
+          expiryDays: 60,
+          category: 'freezer',
+          searchTerms: 'vegetables mix',
+          quantityLevel: 'low',
+        },
+        {
+          id: 'z4',
+          name: 'Chicken Breast',
+          volume: '600g',
+          location: 'Freezer bin',
+          expiryDays: 40,
+          category: 'freezer',
+          searchTerms: 'chicken meat',
+          quantityLevel: 'full',
+        },
+        {
+          id: 'c1',
+          name: 'Avocados',
+          volume: '3 pcs',
+          location: 'Fruit bowl',
+          expiryDays: 3,
+          category: 'counter',
+          searchTerms: 'avocado fruit',
+          quantityLevel: 'low',
+        },
+        {
+          id: 'c2',
+          name: 'Bananas',
+          volume: '5 pcs',
+          location: 'Counter hook',
+          expiryDays: 2,
+          category: 'counter',
+          searchTerms: 'banana fruit',
+          quantityLevel: 'half',
+        },
+        {
+          id: 'c3',
+          name: 'Garlic Bulb',
+          volume: '1 head',
+          location: 'Small basket',
+          expiryDays: 14,
+          category: 'counter',
+          searchTerms: 'garlic spice',
+          quantityLevel: 'high',
+        },
       ],
       nextId: 100,
       currentFilter: 'all',
@@ -488,7 +1049,7 @@ export default {
         pantry: false,
         freezer: false,
         counter: false,
-        expiry: false
+        expiry: false,
       },
       addModalOpen: false,
       useModalOpen: false,
@@ -501,265 +1062,280 @@ export default {
         desc: '',
         expiryDate: '',
         category: 'fridge',
-        volume: '1 item'
+        volume: '1 item',
       },
       quantityWidths: { low: '25%', half: '50%', high: '75%', full: '100%' },
       quantityLabels: { low: 'Low', half: 'Half', high: 'High', full: 'Full' },
       qtyMap: {
-        low:  { percent: "25%", color: "#dc2626", label: "Low (25%)" },
-        half: { percent: "50%", color: "#d97706", label: "Half (50%)" },
-        high: { percent: "75%", color: "#16a34a", label: "High (75%)" },
-        full: { percent: "100%", color: "#6b7280", label: "Full (100%)" }
-      }
+        low: { percent: '25%', color: '#dc2626', label: 'Low (25%)' },
+        half: { percent: '50%', color: '#d97706', label: 'Half (50%)' },
+        high: { percent: '75%', color: '#16a34a', label: 'High (75%)' },
+        full: { percent: '100%', color: '#6b7280', label: 'Full (100%)' },
+      },
     }
   },
   computed: {
     searchResultsInfo() {
       if (this.searchQuery) {
-        const count = this.getFilteredAndSortedItems('all').length;
-        return `found ${count} matching`;
+        const count = this.getFilteredAndSortedItems('all').length
+        return `found ${count} matching`
       }
-      return '';
+      return ''
     },
     qtyProgress() {
-      return this.qtyMap[this.selectedQuantityLevel as keyof typeof this.qtyMap];
+      return this.qtyMap[this.selectedQuantityLevel as keyof typeof this.qtyMap]
     },
     todayDate() {
-      return this.getDateInputValue();
+      return this.getDateInputValue()
     },
     newItemExpiryDays() {
-      if (!this.newItem.expiryDate) return null;
-      return this.calculateDaysUntil(this.newItem.expiryDate);
+      if (!this.newItem.expiryDate) return null
+      return this.calculateDaysUntil(this.newItem.expiryDate)
     },
     newItemExpiryLabel() {
       if (!this.newItem.expiryDate) {
-        return 'Pick a date and we will calculate the days left.';
+        return 'Pick a date and we will calculate the days left.'
       }
 
-      const daysLeft = this.newItemExpiryDays;
-      const readableDate = this.formatDisplayDate(this.newItem.expiryDate);
+      const daysLeft = this.newItemExpiryDays
+      const readableDate = this.formatDisplayDate(this.newItem.expiryDate)
 
       if (daysLeft === null) {
-        return `Expires on ${readableDate}`;
+        return `Expires on ${readableDate}`
       }
 
       if (daysLeft === 0) {
-        return `Expires today, ${readableDate}.`;
+        return `Expires today, ${readableDate}.`
       }
 
       if (daysLeft === 1) {
-        return `1 day left until ${readableDate}.`;
+        return `1 day left until ${readableDate}.`
       }
 
-      return `${daysLeft} days left until ${readableDate}.`;
+      return `${daysLeft} days left until ${readableDate}.`
     },
     useItemName() {
-      const item = this.inventory.find(i => i.id === this.currentUseItemId);
-      return item ? item.name : '';
-    }
+      const item = this.inventory.find((i) => i.id === this.currentUseItemId)
+      return item ? item.name : ''
+    },
   },
   watch: {
     searchQuery() {
       // search applied automatically via computed getFilteredAndSortedItems
-    }
+    },
   },
   methods: {
     getFilteredAndSortedItems(category: string) {
-      let items = category === 'all' ? [...this.inventory] : this.inventory.filter(i => i.category === category);
+      let items =
+        category === 'all'
+          ? [...this.inventory]
+          : this.inventory.filter((i) => i.category === category)
 
       // Apply filter
       if (this.currentFilter === 'near-expiry') {
-        items = items.filter(i => i.expiryDays <= 3);
+        items = items.filter((i) => i.expiryDays <= 3)
       } else if (['fridge', 'pantry', 'freezer', 'counter'].includes(this.currentFilter)) {
-        items = items.filter(i => i.category === this.currentFilter);
+        items = items.filter((i) => i.category === this.currentFilter)
       }
 
       // Apply search
       if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase();
-        items = items.filter(item => {
-          const combined = `${item.name} ${item.volume} ${item.searchTerms || ''}`.toLowerCase();
-          return combined.includes(query);
-        });
+        const query = this.searchQuery.toLowerCase()
+        items = items.filter((item) => {
+          const combined = `${item.name} ${item.volume} ${item.searchTerms || ''}`.toLowerCase()
+          return combined.includes(query)
+        })
       }
 
       // Apply sort
       items.sort((a, b) => {
-        if (this.currentSort === 'expiry') return a.expiryDays - b.expiryDays;
-        if (this.currentSort === 'category') return a.category.localeCompare(b.category);
-        return a.name.localeCompare(b.name);
-      });
+        if (this.currentSort === 'expiry') return a.expiryDays - b.expiryDays
+        if (this.currentSort === 'category') return a.category.localeCompare(b.category)
+        return a.name.localeCompare(b.name)
+      })
 
-      return items;
+      return items
     },
     getNearExpiryItems() {
-      return this.inventory.filter(i => i.expiryDays <= 3);
+      return this.inventory.filter((i) => i.expiryDays <= 3)
     },
     getNearExpiryCount() {
-      return this.getNearExpiryItems().length;
+      return this.getNearExpiryItems().length
     },
     getCategoryCount(category: string) {
       if (category === 'all') {
-        let items = [...this.inventory];
+        let items = [...this.inventory]
         if (this.currentFilter === 'near-expiry') {
-          items = items.filter(i => i.expiryDays <= 3);
+          items = items.filter((i) => i.expiryDays <= 3)
         } else if (['fridge', 'pantry', 'freezer', 'counter'].includes(this.currentFilter)) {
-          items = items.filter(i => i.category === this.currentFilter);
+          items = items.filter((i) => i.category === this.currentFilter)
         }
         if (this.searchQuery) {
-          const query = this.searchQuery.toLowerCase();
-          items = items.filter(item => {
-            const combined = `${item.name} ${item.volume} ${item.searchTerms || ''}`.toLowerCase();
-            return combined.includes(query);
-          });
+          const query = this.searchQuery.toLowerCase()
+          items = items.filter((item) => {
+            const combined = `${item.name} ${item.volume} ${item.searchTerms || ''}`.toLowerCase()
+            return combined.includes(query)
+          })
         }
-        return items.length;
+        return items.length
       }
-      const items = this.getFilteredAndSortedItems(category);
-      return items.length;
+      const items = this.getFilteredAndSortedItems(category)
+      return items.length
     },
-    isHiddenBySearch(item: { id: string; name: string; volume: string; location: string; expiryDays: number; category: string; searchTerms: string; quantityLevel: string; }) {
-      if (!this.searchQuery) return false;
-      const query = this.searchQuery.toLowerCase();
-      const combined = `${item.name} ${item.volume} ${item.searchTerms || ''}`.toLowerCase();
-      return !combined.includes(query);
+    isHiddenBySearch(item: {
+      id: string
+      name: string
+      volume: string
+      location: string
+      expiryDays: number
+      category: string
+      searchTerms: string
+      quantityLevel: string
+    }) {
+      if (!this.searchQuery) return false
+      const query = this.searchQuery.toLowerCase()
+      const combined = `${item.name} ${item.volume} ${item.searchTerms || ''}`.toLowerCase()
+      return !combined.includes(query)
     },
     toggleCategory(cat: string) {
-      this.expandedCategories[cat as keyof typeof this.expandedCategories] = !this.expandedCategories[cat as keyof typeof this.expandedCategories];
+      this.expandedCategories[cat as keyof typeof this.expandedCategories] =
+        !this.expandedCategories[cat as keyof typeof this.expandedCategories]
     },
     escapeHtml(str: string) {
-      return str.replace(/[&<>]/g, function(m: string) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-      });
+      return str.replace(/[&<>]/g, function (m: string) {
+        if (m === '&') return '&amp;'
+        if (m === '<') return '&lt;'
+        if (m === '>') return '&gt;'
+        return m
+      })
     },
     deleteItem(id: unknown) {
-      this.inventory = this.inventory.filter(i => i.id !== id);
-      this.selectedDonationIds.delete(id);
-      this.notifyMessage(`Item removed.`);
+      this.inventory = this.inventory.filter((i) => i.id !== id)
+      this.selectedDonationIds.delete(id)
+      this.notifyMessage(`Item removed.`)
     },
     openUseModal(id: string) {
-      const item = this.inventory.find(i => i.id === id);
-      if (!item) return;
-      this.currentUseItemId = id;
-      this.selectedUseQuantity = item.quantityLevel || 'high';
-      this.useModalOpen = true;
+      const item = this.inventory.find((i) => i.id === id)
+      if (!item) return
+      this.currentUseItemId = id
+      this.selectedUseQuantity = item.quantityLevel || 'high'
+      this.useModalOpen = true
     },
     closeUseModal() {
-      this.useModalOpen = false;
-      this.currentUseItemId = null;
+      this.useModalOpen = false
+      this.currentUseItemId = null
     },
     finishItem() {
-      if (!this.currentUseItemId) return;
-      const item = this.inventory.find(i => i.id === this.currentUseItemId);
-      if (!item) return;
-      this.inventory = this.inventory.filter(i => i.id !== this.currentUseItemId);
-      this.selectedDonationIds.delete(this.currentUseItemId);
-      this.closeUseModal();
-      this.notifyMessage(`Finished "${item.name}"`);
+      if (!this.currentUseItemId) return
+      const item = this.inventory.find((i) => i.id === this.currentUseItemId)
+      if (!item) return
+      this.inventory = this.inventory.filter((i) => i.id !== this.currentUseItemId)
+      this.selectedDonationIds.delete(this.currentUseItemId)
+      this.closeUseModal()
+      this.notifyMessage(`Finished "${item.name}"`)
     },
     confirmUse() {
-      if (!this.currentUseItemId) return;
-      const item = this.inventory.find(i => i.id === this.currentUseItemId);
-      if (!item) return;
-      item.quantityLevel = this.selectedUseQuantity;
-      this.closeUseModal();
-      this.notifyMessage(`Updated "${item.name}" usage`);
+      if (!this.currentUseItemId) return
+      const item = this.inventory.find((i) => i.id === this.currentUseItemId)
+      if (!item) return
+      item.quantityLevel = this.selectedUseQuantity
+      this.closeUseModal()
+      this.notifyMessage(`Updated "${item.name}" usage`)
     },
     singleDonate(id: string) {
-      this.inventory = this.inventory.filter(i => i.id !== id);
-      this.selectedDonationIds.delete(id);
-      this.notifyMessage(`Donated item. Thank you for sharing!`);
+      this.inventory = this.inventory.filter((i) => i.id !== id)
+      this.selectedDonationIds.delete(id)
+      this.notifyMessage(`Donated item. Thank you for sharing!`)
     },
     toggleDonationSelection(id: string) {
       if (this.selectedDonationIds.has(id)) {
-        this.selectedDonationIds.delete(id);
+        this.selectedDonationIds.delete(id)
       } else {
-        this.selectedDonationIds.add(id);
+        this.selectedDonationIds.add(id)
       }
     },
     selectAllVisible() {
-      const visibleItems = this.getFilteredAndSortedItems('all');
-      visibleItems.forEach(item => {
-        this.selectedDonationIds.add(item.id);
-      });
+      const visibleItems = this.getFilteredAndSortedItems('all')
+      visibleItems.forEach((item) => {
+        this.selectedDonationIds.add(item.id)
+      })
     },
     clearAllSelections() {
-      this.selectedDonationIds.clear();
+      this.selectedDonationIds.clear()
     },
     bulkDonateAction() {
-      if (this.selectedDonationIds.size === 0) return;
-      const idsToRemove = Array.from(this.selectedDonationIds);
-      const names = idsToRemove.map(id => {
-        const item = this.inventory.find(i => i.id === id);
-        return item ? item.name : 'item';
-      });
-      this.inventory = this.inventory.filter(i => !this.selectedDonationIds.has(i.id));
-      this.selectedDonationIds.clear();
-      this.notifyMessage(`Donated ${idsToRemove.length} item(s): ${names.join(', ')}. Thank you for reducing waste!`);
+      if (this.selectedDonationIds.size === 0) return
+      const idsToRemove = Array.from(this.selectedDonationIds)
+      const names = idsToRemove.map((id) => {
+        const item = this.inventory.find((i) => i.id === id)
+        return item ? item.name : 'item'
+      })
+      this.inventory = this.inventory.filter((i) => !this.selectedDonationIds.has(i.id))
+      this.selectedDonationIds.clear()
+      this.notifyMessage(
+        `Donated ${idsToRemove.length} item(s): ${names.join(', ')}. Thank you for reducing waste!`,
+      )
     },
     getFilterLabel(filter: string) {
       const labels = {
         'near-expiry': 'Near Expiry',
-        'fridge': 'Fridge',
-        'pantry': 'Pantry',
-        'freezer': 'Freezer',
-        'counter': 'Countertop',
-        'all': 'All'
-      };
-      return labels[filter as keyof typeof labels] || 'All';
+        fridge: 'Fridge',
+        pantry: 'Pantry',
+        freezer: 'Freezer',
+        counter: 'Countertop',
+        all: 'All',
+      }
+      return labels[filter as keyof typeof labels] || 'All'
     },
     getSortLabel(sort: string) {
       const labels = {
-        'expiry': 'Expiry',
-        'category': 'Category',
-        'name': 'Name'
-      };
-      return labels[sort as keyof typeof labels] || 'Name';
+        expiry: 'Expiry',
+        category: 'Category',
+        name: 'Name',
+      }
+      return labels[sort as keyof typeof labels] || 'Name'
     },
     cycleFilterMode() {
-      const nextIndex = (this.filterModes.indexOf(this.currentFilter) + 1) % this.filterModes.length;
-      this.currentFilter = this.filterModes[nextIndex]!;
-      this.notifyMessage(`🧪 Filter set to ${this.getFilterLabel(this.currentFilter)}.`);
+      const nextIndex = (this.filterModes.indexOf(this.currentFilter) + 1) % this.filterModes.length
+      this.currentFilter = this.filterModes[nextIndex]!
+      this.notifyMessage(`🧪 Filter set to ${this.getFilterLabel(this.currentFilter)}.`)
     },
     cycleSortMode() {
-      const nextIndex = (this.sortModes.indexOf(this.currentSort) + 1) % this.sortModes.length;
-      this.currentSort = this.sortModes[nextIndex]!;
-      this.notifyMessage(`🔃 Sort set to ${this.getSortLabel(this.currentSort)}.`);
+      const nextIndex = (this.sortModes.indexOf(this.currentSort) + 1) % this.sortModes.length
+      this.currentSort = this.sortModes[nextIndex]!
+      this.notifyMessage(`🔃 Sort set to ${this.getSortLabel(this.currentSort)}.`)
     },
     getDateInputValue(date = new Date()) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
     },
     getFutureDateInputValue(daysFromToday: number) {
-      const date = new Date();
-      date.setHours(0, 0, 0, 0);
-      date.setDate(date.getDate() + daysFromToday);
-      return this.getDateInputValue(date);
+      const date = new Date()
+      date.setHours(0, 0, 0, 0)
+      date.setDate(date.getDate() + daysFromToday)
+      return this.getDateInputValue(date)
     },
     calculateDaysUntil(dateString: string) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
 
-      const target = new Date(`${dateString}T00:00:00`);
-      target.setHours(0, 0, 0, 0);
+      const target = new Date(`${dateString}T00:00:00`)
+      target.setHours(0, 0, 0, 0)
 
-      const diffMs = target.getTime() - today.getTime();
-      return Math.max(0, Math.ceil(diffMs / 86400000));
+      const diffMs = target.getTime() - today.getTime()
+      return Math.max(0, Math.ceil(diffMs / 86400000))
     },
     formatDisplayDate(dateString: string) {
       return new Date(`${dateString}T00:00:00`).toLocaleDateString(undefined, {
         month: 'short',
         day: 'numeric',
-        year: 'numeric'
-      });
+        year: 'numeric',
+      })
     },
     setQuantityLevel(level: string) {
-      this.selectedQuantityLevel = level;
+      this.selectedQuantityLevel = level
     },
     openAddModal() {
       this.newItem = {
@@ -767,62 +1343,65 @@ export default {
         desc: '',
         expiryDate: this.getFutureDateInputValue(5),
         category: 'fridge',
-        volume: '1 item'
-      };
-      this.selectedStorage = 'fridge';
-      this.selectedQuantityLevel = 'low';
-      this.addModalOpen = true;
+        volume: '1 item',
+      }
+      this.selectedStorage = 'fridge'
+      this.selectedQuantityLevel = 'low'
+      this.addModalOpen = true
     },
     closeAddModal() {
-      this.addModalOpen = false;
+      this.addModalOpen = false
     },
     confirmAdd() {
       if (!this.newItem.name) {
-        this.notifyMessage("Please enter a name");
-        return;
+        this.notifyMessage('Please enter a name')
+        return
       }
 
       if (!this.newItem.expiryDate) {
-        this.notifyMessage("Please select an expiry date");
-        return;
+        this.notifyMessage('Please select an expiry date')
+        return
       }
 
-      const expiryDays = this.calculateDaysUntil(this.newItem.expiryDate);
+      const expiryDays = this.calculateDaysUntil(this.newItem.expiryDate)
 
       const newItem = {
         id: `item_${this.nextId++}`,
         name: this.newItem.name,
-        volume: this.newItem.volume || "1 item",
-        location: "Custom",
+        volume: this.newItem.volume || '1 item',
+        location: 'Custom',
         expiryDays,
         expiryDate: this.newItem.expiryDate,
         category: this.selectedStorage,
         searchTerms: this.newItem.name.toLowerCase(),
-        quantityLevel: this.selectedQuantityLevel
-      };
+        quantityLevel: this.selectedQuantityLevel,
+      }
 
-      this.inventory.push(newItem);
-      this.closeAddModal();
-      this.notifyMessage(`Added "${newItem.name}"`);
+      this.inventory.push(newItem)
+      this.closeAddModal()
+      this.notifyMessage(`Added "${newItem.name}"`)
     },
     notifyMessage(msg: string) {
-      const toast = document.createElement('div');
-      toast.innerText = msg;
-      toast.style.position = 'fixed';
-      toast.style.bottom = '20px';
-      toast.style.left = '50%';
-      toast.style.transform = 'translateX(-50%)';
-      toast.style.backgroundColor = '#1f2f3e';
-      toast.style.color = '#fff';
-      toast.style.padding = '12px 28px';
-      toast.style.borderRadius = '60px';
-      toast.style.fontSize = '0.85rem';
-      toast.style.zIndex = '10000';
-      toast.style.fontWeight = '500';
-      document.body.appendChild(toast);
-      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 2400);
-    }
-  }
+      const toast = document.createElement('div')
+      toast.innerText = msg
+      toast.style.position = 'fixed'
+      toast.style.bottom = '20px'
+      toast.style.left = '50%'
+      toast.style.transform = 'translateX(-50%)'
+      toast.style.backgroundColor = '#1f2f3e'
+      toast.style.color = '#fff'
+      toast.style.padding = '12px 28px'
+      toast.style.borderRadius = '60px'
+      toast.style.fontSize = '0.85rem'
+      toast.style.zIndex = '10000'
+      toast.style.fontWeight = '500'
+      document.body.appendChild(toast)
+      setTimeout(() => {
+        toast.style.opacity = '0'
+        setTimeout(() => toast.remove(), 400)
+      }, 2400)
+    },
+  },
 }
 </script>
 
@@ -898,13 +1477,21 @@ export default {
   cursor: default;
   transition: 0.2s;
 }
-.nav-item i { width: 24px; color: #6883a8; }
+.nav-item i {
+  width: 24px;
+  color: #6883a8;
+}
 .nav-item.active {
   background: #eef6ef;
   color: #2c6e49;
 }
-.nav-item.active i { color: #2c6e49; }
-hr { margin: 28px 0 0; border-top: 1px solid #e9edf2; }
+.nav-item.active i {
+  color: #2c6e49;
+}
+hr {
+  margin: 28px 0 0;
+  border-top: 1px solid #e9edf2;
+}
 
 .main-content {
   min-width: 0;
@@ -921,7 +1508,10 @@ hr { margin: 28px 0 0; border-top: 1px solid #e9edf2; }
   gap: 16px;
   margin-bottom: 28px;
 }
-.page-title h2 { font-size: 2.15rem; font-weight: 800; }
+.page-title h2 {
+  font-size: 2.15rem;
+  font-weight: 800;
+}
 .top-bar-actions {
   display: flex;
   gap: 16px;
@@ -940,7 +1530,10 @@ hr { margin: 28px 0 0; border-top: 1px solid #e9edf2; }
   min-width: min(100%, 360px);
   min-height: 50px;
 }
-.search-wrapper i { color: #6f89ad; font-size: 1.25rem; }
+.search-wrapper i {
+  color: #6f89ad;
+  font-size: 1.25rem;
+}
 .search-wrapper input {
   border: none;
   background: transparent;
@@ -972,7 +1565,7 @@ hr { margin: 28px 0 0; border-top: 1px solid #e9edf2; }
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 .bulk-select-controls {
   display: flex;
@@ -980,7 +1573,9 @@ hr { margin: 28px 0 0; border-top: 1px solid #e9edf2; }
   align-items: stretch;
   gap: 12px;
 }
-.select-all-btn, .clear-selection-btn, .right-btn {
+.select-all-btn,
+.clear-selection-btn,
+.right-btn {
   background: #f3f6fb;
   border: none;
   padding: 12px 16px;
@@ -1048,7 +1643,9 @@ hr { margin: 28px 0 0; border-top: 1px solid #e9edf2; }
   background: white;
   transition: background 0.2s;
 }
-.category-header:hover { background: #fafdff; }
+.category-header:hover {
+  background: #fafdff;
+}
 .cat-title {
   display: flex;
   align-items: center;
@@ -1080,7 +1677,9 @@ hr { margin: 28px 0 0; border-top: 1px solid #e9edf2; }
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: max-height 0.45s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.35s ease;
+  transition:
+    max-height 0.45s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+    opacity 0.35s ease;
   background: #fefefe;
   border-top: 1px solid transparent;
 }
@@ -1104,7 +1703,9 @@ hr { margin: 28px 0 0; border-top: 1px solid #e9edf2; }
   border-radius: 28px;
   box-shadow: 0 10px 24px rgba(31, 47, 62, 0.04);
   border: 1px solid #e7edf6;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
 }
@@ -1182,9 +1783,16 @@ hr { margin: 28px 0 0; border-top: 1px solid #e9edf2; }
   cursor: pointer;
   flex: 0 1 auto;
 }
-.delete-item { color: #111827; }
-.use-item { color: #173b67; }
-.donate-mini { background: #e0f2e9; color: #2a7f49; }
+.delete-item {
+  color: #111827;
+}
+.use-item {
+  color: #173b67;
+}
+.donate-mini {
+  background: #e0f2e9;
+  color: #2a7f49;
+}
 .expiry-warning {
   background: #fff0e0;
   border-radius: 20px;
@@ -1297,10 +1905,18 @@ footer {
   border-radius: 999px;
   transition: width 0.3s ease;
 }
-.usage-fill.low { background: #ef4444; }
-.usage-fill.half { background: #eab308; }
-.usage-fill.high { background: #22c55e; }
-.usage-fill.full { background: #8b8b8b; }
+.usage-fill.low {
+  background: #ef4444;
+}
+.usage-fill.half {
+  background: #eab308;
+}
+.usage-fill.high {
+  background: #22c55e;
+}
+.usage-fill.full {
+  background: #8b8b8b;
+}
 
 .quantity-label {
   font-size: 0.88rem;
@@ -1314,10 +1930,22 @@ footer {
   margin-bottom: 10px;
 }
 
-.quantity-label.low { background: #fee2e2; color: #dc2626; }
-.quantity-label.half { background: #fef3c7; color: #d97706; }
-.quantity-label.high { background: #dcfce7; color: #16a34a; }
-.quantity-label.full { background: #f3f4f6; color: #6b7280; }
+.quantity-label.low {
+  background: #fee2e2;
+  color: #dc2626;
+}
+.quantity-label.half {
+  background: #fef3c7;
+  color: #d97706;
+}
+.quantity-label.high {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.quantity-label.full {
+  background: #f3f4f6;
+  color: #6b7280;
+}
 
 .quantity-selector {
   display: grid;
@@ -1343,24 +1971,56 @@ footer {
   transform: translateY(-2px);
 }
 
-.qty-option.low { border-color: #fca5a5; color: #dc2626; }
-.qty-option.low:hover { background: #fee2e2; }
-.qty-option.half { border-color: #fde047; color: #d97706; }
-.qty-option.half:hover { background: #fef3c7; }
-.qty-option.high { border-color: #86efac; color: #16a34a; }
-.qty-option.high:hover { background: #dcfce7; }
-.qty-option.full { border-color: #d1d5db; color: #6b7280; }
-.qty-option.full:hover { background: #f3f4f6; }
+.qty-option.low {
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+.qty-option.low:hover {
+  background: #fee2e2;
+}
+.qty-option.half {
+  border-color: #fde047;
+  color: #d97706;
+}
+.qty-option.half:hover {
+  background: #fef3c7;
+}
+.qty-option.high {
+  border-color: #86efac;
+  color: #16a34a;
+}
+.qty-option.high:hover {
+  background: #dcfce7;
+}
+.qty-option.full {
+  border-color: #d1d5db;
+  color: #6b7280;
+}
+.qty-option.full:hover {
+  background: #f3f4f6;
+}
 
 .qty-option.selected {
   border-width: 2px;
   transform: scale(1.05);
 }
 
-.qty-option.low.selected { border-color: #dc2626; background: #fee2e2; }
-.qty-option.half.selected { border-color: #d97706; background: #fef3c7; }
-.qty-option.high.selected { border-color: #16a34a; background: #dcfce7; }
-.qty-option.full.selected { border-color: #6b7280; background: #f3f4f6; }
+.qty-option.low.selected {
+  border-color: #dc2626;
+  background: #fee2e2;
+}
+.qty-option.half.selected {
+  border-color: #d97706;
+  background: #fef3c7;
+}
+.qty-option.high.selected {
+  border-color: #16a34a;
+  background: #dcfce7;
+}
+.qty-option.full.selected {
+  border-color: #6b7280;
+  background: #f3f4f6;
+}
 
 /* MODAL */
 .modal-overlay {
@@ -1382,7 +2042,7 @@ footer {
   padding: 28px;
   width: 480px;
   max-width: 90%;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -1470,7 +2130,7 @@ footer {
   min-width: 0;
 }
 
-.row input[type="text"] {
+.row input[type='text'] {
   grid-column: span 2;
 }
 
@@ -1847,7 +2507,7 @@ footer {
     grid-column: span 1;
   }
 
-  .row input[type="text"] {
+  .row input[type='text'] {
     grid-column: span 1;
   }
 

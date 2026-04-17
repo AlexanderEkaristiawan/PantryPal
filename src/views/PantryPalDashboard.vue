@@ -8,8 +8,8 @@
           v-for="item in navItems"
           :key="item.label"
           class="nav-item"
-          :class="{ active: item.active }"
-          @click="setActiveNav(item.label)"
+          :class="{ active: isActive(item.route) }"
+          @click="navigateTo(item.route)"
         >
           <span class="nav-dot"></span>
           {{ item.label }}
@@ -136,10 +136,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 interface NavItem {
   label: string
-  active: boolean
+  route: string
 }
 
 interface InventoryItem {
@@ -152,14 +153,25 @@ interface InventoryItem {
   warning?: boolean
 }
 
+const router = useRouter()
+const route = useRoute()
+
 const navItems = ref<NavItem[]>([
-  { label: 'Dashboard', active: true },
-  { label: 'Inventory', active: false },
-  { label: 'Meal Plan', active: false },
-  { label: 'Donation', active: false },
-  { label: 'Analytics', active: false },
-  { label: 'Settings', active: false },
+  { label: 'Dashboard', route: '/' },
+  { label: 'Inventory', route: '/inventory' },
+  { label: 'Meal Plan', route: '/meal-plan' },
+  { label: 'Donation', route: '/donations' },
+  { label: 'Analytics', route: '/analytics' },
+  { label: 'Settings', route: '/settings' },
 ])
+
+// Compute active state based on current route
+const isActive = (itemRoute: string) => {
+  if (itemRoute === '/') {
+    return route.path === '/'
+  }
+  return route.path.startsWith(itemRoute)
+}
 
 const inventoryItems = ref<InventoryItem[]>([
   {
@@ -189,9 +201,8 @@ const inventoryItems = ref<InventoryItem[]>([
   },
 ])
 
-const setActiveNav = (label: string) => {
-  navItems.value.forEach((item) => (item.active = item.label === label))
-  // In a real app, you'd also use vue-router here
+const navigateTo = (routePath: string) => {
+  router.push(routePath)
 }
 </script>
 

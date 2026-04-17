@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import PantryPalDashboard from '../views/PantryPalDashboard.vue'
+import ManageInventory from '../views/ManageInventory.vue'
+import PantryPalDonationListing from '../views/PantryPalDonationListing.vue'
+import PantryPalWeeklyMealPlan from '../views/PantryPalWeeklyMealPlan.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,18 +13,22 @@ const router = createRouter({
       component: PantryPalDashboard,
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
+      path: '/donations',
+      name: 'donations',
+      component: PantryPalDonationListing,
     },
     {
-      path: '/manage-inventory',
-      name: 'manage-inventory',
-      component: () => import('../views/ManageInventory.vue'),
+      path: '/meal-plan',
+      name: 'meal-plan',
+      component: PantryPalWeeklyMealPlan,
     },
+    {
+      path: '/inventory',
+      name: 'inventory',
+      component: ManageInventory,
+    },
+    // analytics
+    // settings
   ],
 })
 

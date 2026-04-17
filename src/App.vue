@@ -1,11 +1,11 @@
 <!-- App.vue -->
 <template>
-  <manageInventory />
+  <RouterView />
 </template>
 
 <script setup lang="ts">
-import manageInventory from './views/ManageInventory.vue' // Adjust path as needed
-// import { RouterView } from 'vue-router'
+// import manageInventory from './views/ManageInventory.vue' // Adjust path as needed
+import { RouterView } from 'vue-router'
 </script>
 
 <style scoped>
