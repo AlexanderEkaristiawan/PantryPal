@@ -2,7 +2,7 @@
   <div class="sp-wrap">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="logo">🌿 SavePlate</div>
+      <div class="logo">🌿 PantryPal</div>
       <nav>
         <div
           v-for="item in navItems"
@@ -22,7 +22,7 @@
       <!-- Topbar -->
       <header class="topbar">
         <span class="topbar-logo">🌿 SavePlate</span>
-        <div style="flex:1"></div>
+        <div style="flex: 1"></div>
         <button class="tb-btn position-relative">
           Notifications
           <span class="badge">2</span>
@@ -58,12 +58,7 @@
                 <div class="d-card-check"></div>
               </div>
               <div class="d-card-tags">
-                <span
-                  v-for="tag in item.tags"
-                  :key="tag.label"
-                  class="tag"
-                  :class="tag.variant"
-                >
+                <span v-for="tag in item.tags" :key="tag.label" class="tag" :class="tag.variant">
                   {{ tag.label }}
                 </span>
               </div>
@@ -98,12 +93,7 @@
               <div class="d-card-check"></div>
             </div>
             <div class="d-card-tags">
-              <span
-                v-for="tag in item.tags"
-                :key="tag.label"
-                class="tag"
-                :class="tag.variant"
-              >
+              <span v-for="tag in item.tags" :key="tag.label" class="tag" :class="tag.variant">
                 {{ tag.label }}
               </span>
             </div>
@@ -120,56 +110,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 interface Tag {
-  label: string;
-  variant?: 'green' | 'warn' | '';
+  label: string
+  variant?: 'green' | 'warn' | ''
 }
 
 interface DonationItem {
-  id: number;
-  title: string;
-  tags: Tag[];
-  description: string;
+  id: number
+  title: string
+  tags: Tag[]
+  description: string
 }
 
-const router = useRouter();
+const router = useRouter()
 
 const navItems = ref([
-  { label: 'Dashboard', active: false, route: '/' },
-  { label: 'Inventory', active: false, route: '/inventory' },
-  { label: 'Meal Plan', active: false, route: '/meal-plan' },
-  { label: 'Donation', active: true, route: '/donations' },
-  { label: 'Analytics', active: false, route: '/analytics' },
-  { label: 'Settings', active: false, route: '/settings' },
-]);
+  { label: 'Dashboard', active: false, route: '/', icon: 'fas fa-chart-line' },
+  { label: 'Inventory', active: false, route: '/inventory', icon: 'fas fa-box-open' },
+  { label: 'Meal Plan', active: false, route: '/meal-plan', icon: 'fas fa-calendar-alt' },
+  { label: 'Donation', active: true, route: '/donations', icon: 'fas fa-hand-holding-heart' },
+  { label: 'Analytics', active: false, route: '/analytics', icon: 'fas fa-chart-pie' },
+  { label: 'Settings', active: false, route: '/settings', icon: 'fas fa-cog' },
+])
 
-const searchQuery = ref('');
+const searchQuery = ref('')
 
 const recentListings = ref<DonationItem[]>([
   {
     id: 1,
     title: 'Susu UltraMilk · 500ml Original',
-    tags: [
-      { label: 'Exp: 6 Apr', variant: 'warn' },
-      { label: 'Dairy' },
-      { label: '500ml' },
-    ],
+    tags: [{ label: 'Exp: 6 Apr', variant: 'warn' }, { label: 'Dairy' }, { label: '500ml' }],
     description: 'Full box, unopened. Pickup in Denpasar Selatan, available mornings.',
   },
   {
     id: 2,
     title: 'Susu UltraMilk · 500ml Original',
-    tags: [
-      { label: 'Fresh', variant: 'green' },
-      { label: 'Dairy' },
-      { label: '500ml' },
-    ],
+    tags: [{ label: 'Fresh', variant: 'green' }, { label: 'Dairy' }, { label: '500ml' }],
     description: '2 boxes available. Can deliver nearby or pickup at gate.',
   },
-]);
+])
 
 const allListings = ref<DonationItem[]>([
   {
@@ -205,28 +187,25 @@ const allListings = ref<DonationItem[]>([
   {
     id: 6,
     title: 'Roti Tawar · 1 Loaf',
-    tags: [
-      { label: 'Exp: Today', variant: 'warn' },
-      { label: 'Bread' },
-    ],
+    tags: [{ label: 'Exp: Today', variant: 'warn' }, { label: 'Bread' }],
     description: 'Half loaf remaining. Free, please take today.',
   },
-]);
+])
 
 const filteredListings = computed(() => {
-  if (!searchQuery.value) return allListings.value;
-  const q = searchQuery.value.toLowerCase();
+  if (!searchQuery.value) return allListings.value
+  const q = searchQuery.value.toLowerCase()
   return allListings.value.filter(
-    item =>
+    (item) =>
       item.title.toLowerCase().includes(q) ||
       item.description.toLowerCase().includes(q) ||
-      item.tags.some(tag => tag.label.toLowerCase().includes(q))
-  );
-});
+      item.tags.some((tag) => tag.label.toLowerCase().includes(q)),
+  )
+})
 
 const navigateTo = (route: string) => {
-  router.push(route);
-};
+  router.push(route)
+}
 </script>
 
 <style scoped>
@@ -549,5 +528,200 @@ const navigateTo = (route: string) => {
   background: #1d9e75;
   color: #fff;
   border-color: #1d9e75;
+}
+
+.hero-banner {
+  background: linear-gradient(135deg, #e0f2e9 0%, #ffffff 100%);
+  border-radius: 34px;
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 12px 30px rgba(31, 47, 62, 0.04);
+}
+
+.hero-icon {
+  width: 72px;
+  height: 72px;
+  background: white;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+}
+
+.hero-text h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.hero-text p {
+  color: #577190;
+  font-size: 1rem;
+}
+
+.hero-nav {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+}
+
+.hero-nav-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  cursor: pointer;
+  color: #5f7f9e;
+}
+
+.section {
+  margin-bottom: 36px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.section-header h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.filter-sort {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-btn {
+  background: #f3f6fb;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 40px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.donation-card {
+  background: white;
+  border-radius: 28px;
+  padding: 22px;
+  box-shadow: 0 10px 24px rgba(31, 47, 62, 0.04);
+  border: 1px solid #e8eef7;
+  transition: all 0.2s;
+}
+
+.donation-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 28px rgba(31, 47, 62, 0.07);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.card-check {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #d1dbe8;
+  border-radius: 6px;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.tag {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #f3f6fb;
+  color: #486581;
+  font-weight: 500;
+}
+
+.tag.green {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.tag.warn {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.card-desc {
+  color: #577190;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 40px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.action-btn.primary {
+  background: #2c7a4d;
+  color: white;
+  border: none;
+}
+
+.action-btn.primary:hover {
+  background: #1f5e3a;
+}
+
+.browse-all-btn {
+  display: block;
+  margin: 24px auto 0;
+  background: none;
+  border: 1px solid #2c7a4d;
+  color: #2c7a4d;
+  padding: 12px 30px;
+  border-radius: 40px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.right-btn.primary {
+  background: #2c7a4d;
+  color: white;
 }
 </style>

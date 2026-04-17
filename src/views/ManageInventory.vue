@@ -212,44 +212,6 @@
           </div>
         </nav>
       </aside>
-      <aside class="sidebar">
-        <div class="logo-area">
-          <div class="logo-icon"><i class="fas fa-utensils"></i></div>
-          <div class="logo-text">PantryPal</div>
-        </div>
-
-        <div class="nav-item active">
-          <i class="fas fa-chart-line"></i>
-          <span>Dashboard</span>
-        </div>
-
-        <div class="nav-item">
-          <i class="fas fa-box-open"></i>
-          <span>Inventory</span>
-        </div>
-
-        <div class="nav-item">
-          <i class="fas fa-calendar-alt"></i>
-          <span>Meal Plan</span>
-        </div>
-
-        <div class="nav-item donation">
-          <i class="fas fa-hand-holding-heart"></i>
-          <span>Donate</span>
-        </div>
-
-        <div class="nav-item">
-          <i class="fas fa-chart-pie"></i>
-          <span>Analytics</span>
-        </div>
-
-        <div class="nav-item">
-          <i class="fas fa-cog"></i>
-          <span>Settings</span>
-        </div>
-
-        <hr />
-      </aside>
 
       <div class="main-content">
         <div class="top-bar">
@@ -799,23 +761,14 @@
   </div>
 </template>
 
-<script lang="ts">
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
+// ---------- Navigation (same as other pages) ----------
 interface NavItem {
   label: string
   route: string
-}
-
-interface InventoryItem {
-  id: number
-  icon: string
-  name: string
-  location: string
-  expiry: string
-  tag: string
-  warning?: boolean
 }
 
 const router = useRouter()
@@ -830,579 +783,399 @@ const navItems = ref<NavItem[]>([
   { label: 'Settings', route: '/settings' },
 ])
 
-// Compute active state based on current route
 const isActive = (itemRoute: string) => {
-  if (itemRoute === '/') {
-    return route.path === '/'
-  }
+  if (itemRoute === '/') return route.path === '/'
   return route.path.startsWith(itemRoute)
 }
-
-const inventoryItems = ref<InventoryItem[]>([
-  {
-    id: 1,
-    icon: '🥛',
-    name: 'UltraMilk · 500ml Original',
-    location: 'Fridge',
-    expiry: '6 Apr 2026',
-    tag: '2d left',
-    warning: true,
-  },
-  {
-    id: 2,
-    icon: '🍳',
-    name: 'Shrimp Fried Rice',
-    location: 'Freezer',
-    expiry: '20 Apr 2026',
-    tag: 'Fresh',
-  },
-  {
-    id: 3,
-    icon: '🍗',
-    name: 'Chicken Nuggets',
-    location: 'Freezer',
-    expiry: '25 Apr 2026',
-    tag: 'Fresh',
-  },
-])
 
 const navigateTo = (routePath: string) => {
   router.push(routePath)
 }
 
-export default {
-  name: 'FridgeMaster',
-  data() {
-    return {
-      inventory: [
-        {
-          id: 'f1',
-          name: 'Susu UltraMilk',
-          volume: '500ml',
-          location: 'Middle shelf',
-          expiryDays: 5,
-          category: 'fridge',
-          searchTerms: 'milk dairy',
-          quantityLevel: 'high',
-        },
-        {
-          id: 'f2',
-          name: 'Fresh Spinach',
-          volume: '200g bag',
-          location: 'Veg drawer',
-          expiryDays: 2,
-          category: 'fridge',
-          searchTerms: 'spinach greens',
-          quantityLevel: 'low',
-        },
-        {
-          id: 'f3',
-          name: 'Greek Yogurt',
-          volume: '750g tub',
-          location: 'Upper shelf',
-          expiryDays: 8,
-          category: 'fridge',
-          searchTerms: 'yogurt probiotic',
-          quantityLevel: 'half',
-        },
-        {
-          id: 'f4',
-          name: 'Cheddar Cheese',
-          volume: '200g block',
-          location: 'Dairy zone',
-          expiryDays: 12,
-          category: 'fridge',
-          searchTerms: 'cheese dairy',
-          quantityLevel: 'full',
-        },
-        {
-          id: 'f5',
-          name: 'Orange Juice',
-          volume: '1L',
-          location: 'Door shelf',
-          expiryDays: 6,
-          category: 'fridge',
-          searchTerms: 'juice citrus',
-          quantityLevel: 'high',
-        },
-        {
-          id: 'p1',
-          name: 'Brown Rice',
-          volume: '2kg bag',
-          location: 'Dry shelf',
-          expiryDays: 180,
-          category: 'pantry',
-          searchTerms: 'rice grain',
-          quantityLevel: 'full',
-        },
-        {
-          id: 'p2',
-          name: 'Canned Tuna',
-          volume: '150g',
-          location: 'Cabinet',
-          expiryDays: 90,
-          category: 'pantry',
-          searchTerms: 'tuna fish canned',
-          quantityLevel: 'high',
-        },
-        {
-          id: 'p3',
-          name: 'Spaghetti Pasta',
-          volume: '500g',
-          location: 'Pantry box',
-          expiryDays: 200,
-          category: 'pantry',
-          searchTerms: 'pasta noodles',
-          quantityLevel: 'half',
-        },
-        {
-          id: 'p4',
-          name: 'Olive Oil',
-          volume: '750ml',
-          location: 'Cool shelf',
-          expiryDays: 60,
-          category: 'pantry',
-          searchTerms: 'oil cooking',
-          quantityLevel: 'full',
-        },
-        {
-          id: 'z1',
-          name: 'Frozen Berries',
-          volume: '400g',
-          location: 'Freezer drawer',
-          expiryDays: 45,
-          category: 'freezer',
-          searchTerms: 'berries frozen fruit',
-          quantityLevel: 'high',
-        },
-        {
-          id: 'z2',
-          name: 'Ice Cream Vanilla',
-          volume: '1L tub',
-          location: 'Top freezer',
-          expiryDays: 30,
-          category: 'freezer',
-          searchTerms: 'icecream dessert',
-          quantityLevel: 'half',
-        },
-        {
-          id: 'z3',
-          name: 'Frozen Veg Mix',
-          volume: '500g',
-          location: 'Middle drawer',
-          expiryDays: 60,
-          category: 'freezer',
-          searchTerms: 'vegetables mix',
-          quantityLevel: 'low',
-        },
-        {
-          id: 'z4',
-          name: 'Chicken Breast',
-          volume: '600g',
-          location: 'Freezer bin',
-          expiryDays: 40,
-          category: 'freezer',
-          searchTerms: 'chicken meat',
-          quantityLevel: 'full',
-        },
-        {
-          id: 'c1',
-          name: 'Avocados',
-          volume: '3 pcs',
-          location: 'Fruit bowl',
-          expiryDays: 3,
-          category: 'counter',
-          searchTerms: 'avocado fruit',
-          quantityLevel: 'low',
-        },
-        {
-          id: 'c2',
-          name: 'Bananas',
-          volume: '5 pcs',
-          location: 'Counter hook',
-          expiryDays: 2,
-          category: 'counter',
-          searchTerms: 'banana fruit',
-          quantityLevel: 'half',
-        },
-        {
-          id: 'c3',
-          name: 'Garlic Bulb',
-          volume: '1 head',
-          location: 'Small basket',
-          expiryDays: 14,
-          category: 'counter',
-          searchTerms: 'garlic spice',
-          quantityLevel: 'high',
-        },
-      ],
-      nextId: 100,
-      currentFilter: 'all',
-      currentSort: 'name',
-      filterModes: ['all', 'near-expiry', 'fridge', 'pantry', 'freezer', 'counter'],
-      sortModes: ['name', 'expiry', 'category'],
-      searchQuery: '',
-      selectedDonationIds: new Set(),
-      expandedCategories: {
-        all: false,
-        fridge: true,
-        pantry: false,
-        freezer: false,
-        counter: false,
-        expiry: false,
-      },
-      addModalOpen: false,
-      useModalOpen: false,
-      currentUseItemId: null as string | null,
-      selectedUseQuantity: 'high',
-      selectedQuantityLevel: 'low',
-      selectedStorage: 'fridge',
-      newItem: {
-        name: '',
-        desc: '',
-        expiryDate: '',
-        category: 'fridge',
-        volume: '1 item',
-      },
-      quantityWidths: { low: '25%', half: '50%', high: '75%', full: '100%' },
-      quantityLabels: { low: 'Low', half: 'Half', high: 'High', full: 'Full' },
-      qtyMap: {
-        low: { percent: '25%', color: '#dc2626', label: 'Low (25%)' },
-        half: { percent: '50%', color: '#d97706', label: 'Half (50%)' },
-        high: { percent: '75%', color: '#16a34a', label: 'High (75%)' },
-        full: { percent: '100%', color: '#6b7280', label: 'Full (100%)' },
-      },
-    }
-  },
-  computed: {
-    searchResultsInfo() {
-      if (this.searchQuery) {
-        const count = this.getFilteredAndSortedItems('all').length
-        return `found ${count} matching`
-      }
-      return ''
-    },
-    qtyProgress() {
-      return this.qtyMap[this.selectedQuantityLevel as keyof typeof this.qtyMap]
-    },
-    todayDate() {
-      return this.getDateInputValue()
-    },
-    newItemExpiryDays() {
-      if (!this.newItem.expiryDate) return null
-      return this.calculateDaysUntil(this.newItem.expiryDate)
-    },
-    newItemExpiryLabel() {
-      if (!this.newItem.expiryDate) {
-        return 'Pick a date and we will calculate the days left.'
-      }
-
-      const daysLeft = this.newItemExpiryDays
-      const readableDate = this.formatDisplayDate(this.newItem.expiryDate)
-
-      if (daysLeft === null) {
-        return `Expires on ${readableDate}`
-      }
-
-      if (daysLeft === 0) {
-        return `Expires today, ${readableDate}.`
-      }
-
-      if (daysLeft === 1) {
-        return `1 day left until ${readableDate}.`
-      }
-
-      return `${daysLeft} days left until ${readableDate}.`
-    },
-    useItemName() {
-      const item = this.inventory.find((i) => i.id === this.currentUseItemId)
-      return item ? item.name : ''
-    },
-  },
-  watch: {
-    searchQuery() {
-      // search applied automatically via computed getFilteredAndSortedItems
-    },
-  },
-  methods: {
-    getFilteredAndSortedItems(category: string) {
-      let items =
-        category === 'all'
-          ? [...this.inventory]
-          : this.inventory.filter((i) => i.category === category)
-
-      // Apply filter
-      if (this.currentFilter === 'near-expiry') {
-        items = items.filter((i) => i.expiryDays <= 3)
-      } else if (['fridge', 'pantry', 'freezer', 'counter'].includes(this.currentFilter)) {
-        items = items.filter((i) => i.category === this.currentFilter)
-      }
-
-      // Apply search
-      if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase()
-        items = items.filter((item) => {
-          const combined = `${item.name} ${item.volume} ${item.searchTerms || ''}`.toLowerCase()
-          return combined.includes(query)
-        })
-      }
-
-      // Apply sort
-      items.sort((a, b) => {
-        if (this.currentSort === 'expiry') return a.expiryDays - b.expiryDays
-        if (this.currentSort === 'category') return a.category.localeCompare(b.category)
-        return a.name.localeCompare(b.name)
-      })
-
-      return items
-    },
-    getNearExpiryItems() {
-      return this.inventory.filter((i) => i.expiryDays <= 3)
-    },
-    getNearExpiryCount() {
-      return this.getNearExpiryItems().length
-    },
-    getCategoryCount(category: string) {
-      if (category === 'all') {
-        let items = [...this.inventory]
-        if (this.currentFilter === 'near-expiry') {
-          items = items.filter((i) => i.expiryDays <= 3)
-        } else if (['fridge', 'pantry', 'freezer', 'counter'].includes(this.currentFilter)) {
-          items = items.filter((i) => i.category === this.currentFilter)
-        }
-        if (this.searchQuery) {
-          const query = this.searchQuery.toLowerCase()
-          items = items.filter((item) => {
-            const combined = `${item.name} ${item.volume} ${item.searchTerms || ''}`.toLowerCase()
-            return combined.includes(query)
-          })
-        }
-        return items.length
-      }
-      const items = this.getFilteredAndSortedItems(category)
-      return items.length
-    },
-    isHiddenBySearch(item: {
-      id: string
-      name: string
-      volume: string
-      location: string
-      expiryDays: number
-      category: string
-      searchTerms: string
-      quantityLevel: string
-    }) {
-      if (!this.searchQuery) return false
-      const query = this.searchQuery.toLowerCase()
-      const combined = `${item.name} ${item.volume} ${item.searchTerms || ''}`.toLowerCase()
-      return !combined.includes(query)
-    },
-    toggleCategory(cat: string) {
-      this.expandedCategories[cat as keyof typeof this.expandedCategories] =
-        !this.expandedCategories[cat as keyof typeof this.expandedCategories]
-    },
-    escapeHtml(str: string) {
-      return str.replace(/[&<>]/g, function (m: string) {
-        if (m === '&') return '&amp;'
-        if (m === '<') return '&lt;'
-        if (m === '>') return '&gt;'
-        return m
-      })
-    },
-    deleteItem(id: unknown) {
-      this.inventory = this.inventory.filter((i) => i.id !== id)
-      this.selectedDonationIds.delete(id)
-      this.notifyMessage(`Item removed.`)
-    },
-    openUseModal(id: string) {
-      const item = this.inventory.find((i) => i.id === id)
-      if (!item) return
-      this.currentUseItemId = id
-      this.selectedUseQuantity = item.quantityLevel || 'high'
-      this.useModalOpen = true
-    },
-    closeUseModal() {
-      this.useModalOpen = false
-      this.currentUseItemId = null
-    },
-    finishItem() {
-      if (!this.currentUseItemId) return
-      const item = this.inventory.find((i) => i.id === this.currentUseItemId)
-      if (!item) return
-      this.inventory = this.inventory.filter((i) => i.id !== this.currentUseItemId)
-      this.selectedDonationIds.delete(this.currentUseItemId)
-      this.closeUseModal()
-      this.notifyMessage(`Finished "${item.name}"`)
-    },
-    confirmUse() {
-      if (!this.currentUseItemId) return
-      const item = this.inventory.find((i) => i.id === this.currentUseItemId)
-      if (!item) return
-      item.quantityLevel = this.selectedUseQuantity
-      this.closeUseModal()
-      this.notifyMessage(`Updated "${item.name}" usage`)
-    },
-    singleDonate(id: string) {
-      this.inventory = this.inventory.filter((i) => i.id !== id)
-      this.selectedDonationIds.delete(id)
-      this.notifyMessage(`Donated item. Thank you for sharing!`)
-    },
-    toggleDonationSelection(id: string) {
-      if (this.selectedDonationIds.has(id)) {
-        this.selectedDonationIds.delete(id)
-      } else {
-        this.selectedDonationIds.add(id)
-      }
-    },
-    selectAllVisible() {
-      const visibleItems = this.getFilteredAndSortedItems('all')
-      visibleItems.forEach((item) => {
-        this.selectedDonationIds.add(item.id)
-      })
-    },
-    clearAllSelections() {
-      this.selectedDonationIds.clear()
-    },
-    bulkDonateAction() {
-      if (this.selectedDonationIds.size === 0) return
-      const idsToRemove = Array.from(this.selectedDonationIds)
-      const names = idsToRemove.map((id) => {
-        const item = this.inventory.find((i) => i.id === id)
-        return item ? item.name : 'item'
-      })
-      this.inventory = this.inventory.filter((i) => !this.selectedDonationIds.has(i.id))
-      this.selectedDonationIds.clear()
-      this.notifyMessage(
-        `Donated ${idsToRemove.length} item(s): ${names.join(', ')}. Thank you for reducing waste!`,
-      )
-    },
-    getFilterLabel(filter: string) {
-      const labels = {
-        'near-expiry': 'Near Expiry',
-        fridge: 'Fridge',
-        pantry: 'Pantry',
-        freezer: 'Freezer',
-        counter: 'Countertop',
-        all: 'All',
-      }
-      return labels[filter as keyof typeof labels] || 'All'
-    },
-    getSortLabel(sort: string) {
-      const labels = {
-        expiry: 'Expiry',
-        category: 'Category',
-        name: 'Name',
-      }
-      return labels[sort as keyof typeof labels] || 'Name'
-    },
-    cycleFilterMode() {
-      const nextIndex = (this.filterModes.indexOf(this.currentFilter) + 1) % this.filterModes.length
-      this.currentFilter = this.filterModes[nextIndex]!
-      this.notifyMessage(`🧪 Filter set to ${this.getFilterLabel(this.currentFilter)}.`)
-    },
-    cycleSortMode() {
-      const nextIndex = (this.sortModes.indexOf(this.currentSort) + 1) % this.sortModes.length
-      this.currentSort = this.sortModes[nextIndex]!
-      this.notifyMessage(`🔃 Sort set to ${this.getSortLabel(this.currentSort)}.`)
-    },
-    getDateInputValue(date = new Date()) {
-      const year = date.getFullYear()
-      const month = String(date.getMonth() + 1).padStart(2, '0')
-      const day = String(date.getDate()).padStart(2, '0')
-      return `${year}-${month}-${day}`
-    },
-    getFutureDateInputValue(daysFromToday: number) {
-      const date = new Date()
-      date.setHours(0, 0, 0, 0)
-      date.setDate(date.getDate() + daysFromToday)
-      return this.getDateInputValue(date)
-    },
-    calculateDaysUntil(dateString: string) {
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-
-      const target = new Date(`${dateString}T00:00:00`)
-      target.setHours(0, 0, 0, 0)
-
-      const diffMs = target.getTime() - today.getTime()
-      return Math.max(0, Math.ceil(diffMs / 86400000))
-    },
-    formatDisplayDate(dateString: string) {
-      return new Date(`${dateString}T00:00:00`).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
-    },
-    setQuantityLevel(level: string) {
-      this.selectedQuantityLevel = level
-    },
-    openAddModal() {
-      this.newItem = {
-        name: '',
-        desc: '',
-        expiryDate: this.getFutureDateInputValue(5),
-        category: 'fridge',
-        volume: '1 item',
-      }
-      this.selectedStorage = 'fridge'
-      this.selectedQuantityLevel = 'low'
-      this.addModalOpen = true
-    },
-    closeAddModal() {
-      this.addModalOpen = false
-    },
-    confirmAdd() {
-      if (!this.newItem.name) {
-        this.notifyMessage('Please enter a name')
-        return
-      }
-
-      if (!this.newItem.expiryDate) {
-        this.notifyMessage('Please select an expiry date')
-        return
-      }
-
-      const expiryDays = this.calculateDaysUntil(this.newItem.expiryDate)
-
-      const newItem = {
-        id: `item_${this.nextId++}`,
-        name: this.newItem.name,
-        volume: this.newItem.volume || '1 item',
-        location: 'Custom',
-        expiryDays,
-        expiryDate: this.newItem.expiryDate,
-        category: this.selectedStorage,
-        searchTerms: this.newItem.name.toLowerCase(),
-        quantityLevel: this.selectedQuantityLevel,
-      }
-
-      this.inventory.push(newItem)
-      this.closeAddModal()
-      this.notifyMessage(`Added "${newItem.name}"`)
-    },
-    notifyMessage(msg: string) {
-      const toast = document.createElement('div')
-      toast.innerText = msg
-      toast.style.position = 'fixed'
-      toast.style.bottom = '20px'
-      toast.style.left = '50%'
-      toast.style.transform = 'translateX(-50%)'
-      toast.style.backgroundColor = '#1f2f3e'
-      toast.style.color = '#fff'
-      toast.style.padding = '12px 28px'
-      toast.style.borderRadius = '60px'
-      toast.style.fontSize = '0.85rem'
-      toast.style.zIndex = '10000'
-      toast.style.fontWeight = '500'
-      document.body.appendChild(toast)
-      setTimeout(() => {
-        toast.style.opacity = '0'
-        setTimeout(() => toast.remove(), 400)
-      }, 2400)
-    },
-  },
+// ---------- Inventory Data & Logic (converted from Options API) ----------
+interface InventoryItem {
+  id: string
+  name: string
+  volume: string
+  location: string
+  expiryDays: number
+  category: string
+  searchTerms: string
+  quantityLevel: string
 }
+
+const inventory = ref<InventoryItem[]>([
+  {
+    id: 'f1',
+    name: 'Susu UltraMilk',
+    volume: '500ml',
+    location: 'Middle shelf',
+    expiryDays: 5,
+    category: 'fridge',
+    searchTerms: 'milk dairy',
+    quantityLevel: 'high',
+  },
+  {
+    id: 'f2',
+    name: 'Fresh Spinach',
+    volume: '200g bag',
+    location: 'Veg drawer',
+    expiryDays: 2,
+    category: 'fridge',
+    searchTerms: 'spinach greens',
+    quantityLevel: 'low',
+  },
+  // ... include all other items from original data ...
+])
+
+const nextId = ref(100)
+
+const currentFilter = ref('all')
+const currentSort = ref('name')
+const filterModes = ['all', 'near-expiry', 'fridge', 'pantry', 'freezer', 'counter']
+const sortModes = ['name', 'expiry', 'category']
+
+const searchQuery = ref('')
+const selectedDonationIds = ref<Set<string>>(new Set())
+
+const expandedCategories = ref({
+  all: false,
+  fridge: true,
+  pantry: false,
+  freezer: false,
+  counter: false,
+  expiry: false,
+})
+
+const addModalOpen = ref(false)
+const useModalOpen = ref(false)
+const currentUseItemId = ref<string | null>(null)
+const selectedUseQuantity = ref('high')
+// const selectedQuantityLevel = ref('low')
+const selectedStorage = ref('fridge')
+
+const newItem = ref({
+  name: '',
+  desc: '',
+  expiryDate: '',
+  category: 'fridge',
+  volume: '1 item',
+})
+
+const quantityWidths = { low: '25%', half: '50%', high: '75%', full: '100%' }
+const quantityLabels = { low: 'Low', half: 'Half', high: 'High', full: 'Full' }
+
+// Define the union type for quantity levels
+type QuantityLevel = 'low' | 'half' | 'high' | 'full'
+
+// Use the type in ref
+const selectedQuantityLevel = ref<QuantityLevel>('full')
+
+const qtyMap: Record<QuantityLevel, { percent: string; color: string; label: string }> = {
+  low: { percent: '25%', color: '#dc2626', label: 'Low (25%)' },
+  half: { percent: '50%', color: '#d97706', label: 'Half (50%)' },
+  high: { percent: '75%', color: '#16a34a', label: 'High (75%)' },
+  full: { percent: '100%', color: '#6b7280', label: 'Full (100%)' },
+}
+
+// ---------- Computed ----------
+const searchResultsInfo = computed(() => {
+  if (searchQuery.value) {
+    const count = getFilteredAndSortedItems('all').length
+    return `found ${count} matching`
+  }
+  return ''
+})
+
+const qtyProgress = computed(() => qtyMap[selectedQuantityLevel.value])
+
+const todayDate = computed(() => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+})
+
+const newItemExpiryDays = computed(() => {
+  if (!newItem.value.expiryDate) return null
+  return calculateDaysUntil(newItem.value.expiryDate)
+})
+
+const newItemExpiryLabel = computed(() => {
+  if (!newItem.value.expiryDate) return 'Pick a date and we will calculate the days left.'
+  const daysLeft = newItemExpiryDays.value
+  const readableDate = formatDisplayDate(newItem.value.expiryDate)
+  if (daysLeft === null) return `Expires on ${readableDate}`
+  if (daysLeft === 0) return `Expires today, ${readableDate}.`
+  if (daysLeft === 1) return `1 day left until ${readableDate}.`
+  return `${daysLeft} days left until ${readableDate}.`
+})
+
+const useItemName = computed(() => {
+  const item = inventory.value.find((i) => i.id === currentUseItemId.value)
+  return item ? item.name : ''
+})
+
+// ---------- Helper Functions ----------
+function getFilteredAndSortedItems(category: string): InventoryItem[] {
+  let items =
+    category === 'all'
+      ? [...inventory.value]
+      : inventory.value.filter((i) => i.category === category)
+
+  if (currentFilter.value === 'near-expiry') {
+    items = items.filter((i) => i.expiryDays <= 3)
+  } else if (['fridge', 'pantry', 'freezer', 'counter'].includes(currentFilter.value)) {
+    items = items.filter((i) => i.category === currentFilter.value)
+  }
+
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    items = items.filter((item) => {
+      const combined = `${item.name} ${item.volume} ${item.searchTerms || ''}`.toLowerCase()
+      return combined.includes(query)
+    })
+  }
+
+  items.sort((a, b) => {
+    if (currentSort.value === 'expiry') return a.expiryDays - b.expiryDays
+    if (currentSort.value === 'category') return a.category.localeCompare(b.category)
+    return a.name.localeCompare(b.name)
+  })
+
+  return items
+}
+
+function getNearExpiryItems(): InventoryItem[] {
+  return inventory.value.filter((i) => i.expiryDays <= 3)
+}
+
+function getNearExpiryCount(): number {
+  return getNearExpiryItems().length
+}
+
+function getCategoryCount(category: string): number {
+  if (category === 'all') {
+    let items = [...inventory.value]
+    if (currentFilter.value === 'near-expiry') items = items.filter((i) => i.expiryDays <= 3)
+    else if (['fridge', 'pantry', 'freezer', 'counter'].includes(currentFilter.value))
+      items = items.filter((i) => i.category === currentFilter.value)
+    if (searchQuery.value) {
+      const q = searchQuery.value.toLowerCase()
+      items = items.filter((item) =>
+        `${item.name} ${item.volume} ${item.searchTerms}`.toLowerCase().includes(q),
+      )
+    }
+    return items.length
+  }
+  return getFilteredAndSortedItems(category).length
+}
+
+function isHiddenBySearch(item: InventoryItem): boolean {
+  if (!searchQuery.value) return false
+  const combined = `${item.name} ${item.volume} ${item.searchTerms}`.toLowerCase()
+  return !combined.includes(searchQuery.value.toLowerCase())
+}
+
+function toggleCategory(cat: keyof typeof expandedCategories.value) {
+  expandedCategories.value[cat] = !expandedCategories.value[cat]
+}
+
+function escapeHtml(str: string): string {
+  return str.replace(
+    /[&<>]/g,
+    (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m as '&' | '<' | '>'] || m,
+  )
+}
+
+function deleteItem(id: string) {
+  inventory.value = inventory.value.filter((i) => i.id !== id)
+  selectedDonationIds.value.delete(id)
+  notifyMessage('Item removed.')
+}
+
+function openUseModal(id: string) {
+  const item = inventory.value.find((i) => i.id === id)
+  if (!item) return
+  currentUseItemId.value = id
+  selectedUseQuantity.value = item.quantityLevel || 'high'
+  useModalOpen.value = true
+}
+
+function closeUseModal() {
+  useModalOpen.value = false
+  currentUseItemId.value = null
+}
+
+function finishItem() {
+  if (!currentUseItemId.value) return
+  const item = inventory.value.find((i) => i.id === currentUseItemId.value)
+  if (!item) return
+  inventory.value = inventory.value.filter((i) => i.id !== currentUseItemId.value)
+  selectedDonationIds.value.delete(currentUseItemId.value)
+  closeUseModal()
+  notifyMessage(`Finished "${item.name}"`)
+}
+
+function confirmUse() {
+  if (!currentUseItemId.value) return
+  const item = inventory.value.find((i) => i.id === currentUseItemId.value)
+  if (!item) return
+  item.quantityLevel = selectedUseQuantity.value
+  closeUseModal()
+  notifyMessage(`Updated "${item.name}" usage`)
+}
+
+function singleDonate(id: string) {
+  inventory.value = inventory.value.filter((i) => i.id !== id)
+  selectedDonationIds.value.delete(id)
+  notifyMessage('Donated item. Thank you for sharing!')
+}
+
+function toggleDonationSelection(id: string) {
+  if (selectedDonationIds.value.has(id)) {
+    selectedDonationIds.value.delete(id)
+  } else {
+    selectedDonationIds.value.add(id)
+  }
+}
+
+function selectAllVisible() {
+  getFilteredAndSortedItems('all').forEach((item) => selectedDonationIds.value.add(item.id))
+}
+
+function clearAllSelections() {
+  selectedDonationIds.value.clear()
+}
+
+function bulkDonateAction() {
+  if (selectedDonationIds.value.size === 0) return
+  const ids = Array.from(selectedDonationIds.value)
+  const names = ids.map((id) => inventory.value.find((i) => i.id === id)?.name || 'item')
+  inventory.value = inventory.value.filter((i) => !selectedDonationIds.value.has(i.id))
+  selectedDonationIds.value.clear()
+  notifyMessage(`Donated ${ids.length} item(s): ${names.join(', ')}. Thank you for reducing waste!`)
+}
+
+function getFilterLabel(filter: string): string {
+  const labels: Record<string, string> = {
+    'near-expiry': 'Near Expiry',
+    fridge: 'Fridge',
+    pantry: 'Pantry',
+    freezer: 'Freezer',
+    counter: 'Countertop',
+    all: 'All',
+  }
+  return labels[filter] || 'All'
+}
+
+function getSortLabel(sort: string): string {
+  const labels: Record<string, string> = { expiry: 'Expiry', category: 'Category', name: 'Name' }
+  return labels[sort] || 'Name'
+}
+
+function cycleFilterMode() {
+  const idx = (filterModes.indexOf(currentFilter.value) + 1) % filterModes.length
+  currentFilter.value = filterModes[idx]!
+  notifyMessage(`🧪 Filter set to ${getFilterLabel(currentFilter.value)}.`)
+}
+
+function cycleSortMode() {
+  const idx = (sortModes.indexOf(currentSort.value) + 1) % sortModes.length
+  currentSort.value = sortModes[idx]!
+  notifyMessage(`🔃 Sort set to ${getSortLabel(currentSort.value)}.`)
+}
+
+function calculateDaysUntil(dateString: string): number {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const target = new Date(`${dateString}T00:00:00`)
+  target.setHours(0, 0, 0, 0)
+  return Math.max(0, Math.ceil((target.getTime() - today.getTime()) / 86400000))
+}
+
+function formatDisplayDate(dateString: string): string {
+  return new Date(`${dateString}T00:00:00`).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+function setQuantityLevel(level: QuantityLevel) {
+  selectedQuantityLevel.value = level
+}
+
+function openAddModal() {
+  const future = new Date()
+  future.setDate(future.getDate() + 5)
+  const y = future.getFullYear()
+  const m = String(future.getMonth() + 1).padStart(2, '0')
+  const d = String(future.getDate()).padStart(2, '0')
+  newItem.value = {
+    name: '',
+    desc: '',
+    expiryDate: `${y}-${m}-${d}`,
+    category: 'fridge',
+    volume: '1 item',
+  }
+  selectedStorage.value = 'fridge'
+  selectedQuantityLevel.value = 'low'
+  addModalOpen.value = true
+}
+
+function closeAddModal() {
+  addModalOpen.value = false
+}
+
+function confirmAdd() {
+  if (!newItem.value.name) {
+    notifyMessage('Please enter a name')
+    return
+  }
+  if (!newItem.value.expiryDate) {
+    notifyMessage('Please select an expiry date')
+    return
+  }
+
+  const expiryDays = calculateDaysUntil(newItem.value.expiryDate)
+  const newId = `item_${nextId.value++}`
+  inventory.value.push({
+    id: newId,
+    name: newItem.value.name,
+    volume: newItem.value.volume || '1 item',
+    location: 'Custom',
+    expiryDays,
+    category: selectedStorage.value,
+    searchTerms: newItem.value.name.toLowerCase(),
+    quantityLevel: selectedQuantityLevel.value,
+  })
+  closeAddModal()
+  notifyMessage(`Added "${newItem.value.name}"`)
+}
+
+function notifyMessage(msg: string) {
+  const toast = document.createElement('div')
+  toast.innerText = msg
+  Object.assign(toast.style, {
+    position: 'fixed',
+    bottom: '20px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    backgroundColor: '#1f2f3e',
+    color: '#fff',
+    padding: '12px 28px',
+    borderRadius: '60px',
+    fontSize: '0.85rem',
+    zIndex: '10000',
+    fontWeight: '500',
+  })
+  document.body.appendChild(toast)
+  setTimeout(() => {
+    toast.style.opacity = '0'
+    setTimeout(() => toast.remove(), 400)
+  }, 2400)
+}
+
+// Watch searchQuery for reactivity (already covered by computed getters)
 </script>
 
 <style scoped>

@@ -2,7 +2,7 @@
   <div class="sp-wrap">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="logo">🌿 SavePlate</div>
+      <div class="logo">🌿 PantryPal</div>
       <nav>
         <div
           v-for="item in navItems"
@@ -22,7 +22,7 @@
       <!-- Topbar -->
       <header class="topbar">
         <span class="logo-text">🌿 SavePlate</span>
-        <div style="flex:1"></div>
+        <div style="flex: 1"></div>
         <button class="tb-btn position-relative">
           Notifications
           <span class="badge">2</span>
@@ -91,11 +91,7 @@
             />
             <button class="filter-btn-sm">Filter</button>
           </div>
-          <div
-            v-for="item in filteredInventory"
-            :key="item.id"
-            class="inv-item"
-          >
+          <div v-for="item in filteredInventory" :key="item.id" class="inv-item">
             <div class="inv-icon">{{ item.icon }}</div>
             <div class="inv-info">
               <div class="inv-name">{{ item.name }}</div>
@@ -120,20 +116,15 @@
             </div>
             <div class="form-field">
               <label>Ingredients used</label>
-              <div
-                v-for="(ing, idx) in selectedIngredients"
-                :key="idx"
-                class="ingr-item"
-              >
+              <div v-for="(ing, idx) in selectedIngredients" :key="idx" class="ingr-item">
                 {{ ing.icon }} {{ ing.name }}
                 <span
-                  style="margin-left:auto;color:#D85A30;cursor:pointer"
+                  style="margin-left: auto; color: #d85a30; cursor: pointer"
                   @click="removeIngredient(idx)"
-                >✕</span>
+                  >✕</span
+                >
               </div>
-              <div class="add-ingr" @click="showIngredientSelector = true">
-                + Add ingredients
-              </div>
+              <div class="add-ingr" @click="showIngredientSelector = true">+ Add ingredients</div>
             </div>
             <button class="add-meal-btn" @click="addMeal">Add Meal</button>
           </div>
@@ -156,27 +147,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 interface InventoryItem {
-  id: number;
-  icon: string;
-  name: string;
-  location: string;
-  expiry: string;
-  tag?: string;
-  warning?: boolean;
+  id: number
+  icon: string
+  name: string
+  location: string
+  expiry: string
+  tag?: string
+  warning?: boolean
 }
 
 interface Recommendation {
-  id: number;
-  icon: string;
-  name: string;
-  uses: string;
+  id: number
+  icon: string
+  name: string
+  uses: string
 }
 
-const router = useRouter();
+const router = useRouter()
 
 const navItems = ref([
   { label: 'Dashboard', active: false, route: '/' },
@@ -185,46 +176,46 @@ const navItems = ref([
   { label: 'Donation', active: false, route: '/donations' },
   { label: 'Analytics', active: false, route: '/analytics' },
   { label: 'Settings', active: false, route: '/settings' },
-]);
+])
 
 // Calendar state
-const currentDate = ref(new Date(2026, 3, 14)); // April 14, 2026 (month index 3)
-const selectedDate = ref(new Date(2026, 3, 14));
+const currentDate = ref(new Date(2026, 3, 14)) // April 14, 2026 (month index 3)
+const selectedDate = ref(new Date(2026, 3, 14))
 
-const dayLabels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+const dayLabels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
 const currentMonthYear = computed(() => {
   return currentDate.value.toLocaleDateString('en-US', {
     month: 'long',
     year: 'numeric',
-  });
-});
+  })
+})
 
 interface CalendarDay {
-  date: Date;
-  dayOfMonth: number;
-  isCurrentMonth: boolean;
-  isToday: boolean;
-  isSelected: boolean;
-  dateKey: string;
+  date: Date
+  dayOfMonth: number
+  isCurrentMonth: boolean
+  isToday: boolean
+  isSelected: boolean
+  dateKey: string
 }
 
 const calendarDays = computed<CalendarDay[]>(() => {
-  const year = currentDate.value.getFullYear();
-  const month = currentDate.value.getMonth();
-  const firstDay = new Date(year, month, 1);
-  const startDayOfWeek = firstDay.getDay(); // 0 = Sunday
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const year = currentDate.value.getFullYear()
+  const month = currentDate.value.getMonth()
+  const firstDay = new Date(year, month, 1)
+  const startDayOfWeek = firstDay.getDay() // 0 = Sunday
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
 
-  const days: CalendarDay[] = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const days: CalendarDay[] = []
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
   // Previous month days
-  const prevMonthDate = new Date(year, month, 0);
-  const daysInPrevMonth = prevMonthDate.getDate();
+  const prevMonthDate = new Date(year, month, 0)
+  const daysInPrevMonth = prevMonthDate.getDate()
   for (let i = startDayOfWeek - 1; i >= 0; i--) {
-    const date = new Date(year, month - 1, daysInPrevMonth - i);
+    const date = new Date(year, month - 1, daysInPrevMonth - i)
     days.push({
       date,
       dayOfMonth: daysInPrevMonth - i,
@@ -232,12 +223,12 @@ const calendarDays = computed<CalendarDay[]>(() => {
       isToday: date.getTime() === today.getTime(),
       isSelected: date.getTime() === selectedDate.value.getTime(),
       dateKey: date.toISOString(),
-    });
+    })
   }
 
   // Current month days
   for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(year, month, d);
+    const date = new Date(year, month, d)
     days.push({
       date,
       dayOfMonth: d,
@@ -245,13 +236,13 @@ const calendarDays = computed<CalendarDay[]>(() => {
       isToday: date.getTime() === today.getTime(),
       isSelected: date.getTime() === selectedDate.value.getTime(),
       dateKey: date.toISOString(),
-    });
+    })
   }
 
   // Next month days to fill 42 cells (6 rows)
-  const remainingCells = 42 - days.length;
+  const remainingCells = 42 - days.length
   for (let d = 1; d <= remainingCells; d++) {
-    const date = new Date(year, month + 1, d);
+    const date = new Date(year, month + 1, d)
     days.push({
       date,
       dayOfMonth: d,
@@ -259,11 +250,11 @@ const calendarDays = computed<CalendarDay[]>(() => {
       isToday: date.getTime() === today.getTime(),
       isSelected: date.getTime() === selectedDate.value.getTime(),
       dateKey: date.toISOString(),
-    });
+    })
   }
 
-  return days;
-});
+  return days
+})
 
 const formattedSelectedDate = computed(() => {
   return selectedDate.value.toLocaleDateString('en-US', {
@@ -271,29 +262,21 @@ const formattedSelectedDate = computed(() => {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
-  });
-});
+  })
+})
 
 const prevMonth = () => {
-  currentDate.value = new Date(
-    currentDate.value.getFullYear(),
-    currentDate.value.getMonth() - 1,
-    1
-  );
-};
+  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1)
+}
 
 const nextMonth = () => {
-  currentDate.value = new Date(
-    currentDate.value.getFullYear(),
-    currentDate.value.getMonth() + 1,
-    1
-  );
-};
+  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
+}
 
 const selectDate = (date: Date) => {
-  selectedDate.value = new Date(date);
-  selectedDate.value.setHours(0, 0, 0, 0);
-};
+  selectedDate.value = new Date(date)
+  selectedDate.value.setHours(0, 0, 0, 0)
+}
 
 // Meal slots for selected date
 const mealSlots = ref([
@@ -301,10 +284,10 @@ const mealSlots = ref([
   { type: 'lunch', label: 'Lunch', meal: 'Chicken Wings' },
   { type: 'dinner', label: 'Dinner', meal: 'Chicken Katsu' },
   { type: 'snacks', label: 'Snacks', meal: '' },
-]);
+])
 
 // Inventory
-const inventorySearch = ref('');
+const inventorySearch = ref('')
 const inventoryItems = ref<InventoryItem[]>([
   {
     id: 1,
@@ -336,36 +319,34 @@ const inventoryItems = ref<InventoryItem[]>([
     location: 'Fridge',
     expiry: '25 Apr 2026',
   },
-]);
+])
 
 const filteredInventory = computed(() => {
-  if (!inventorySearch.value) return inventoryItems.value;
-  const q = inventorySearch.value.toLowerCase();
+  if (!inventorySearch.value) return inventoryItems.value
+  const q = inventorySearch.value.toLowerCase()
   return inventoryItems.value.filter(
-    item =>
-      item.name.toLowerCase().includes(q) ||
-      item.location.toLowerCase().includes(q)
-  );
-});
+    (item) => item.name.toLowerCase().includes(q) || item.location.toLowerCase().includes(q),
+  )
+})
 
 // Create meal form
-const newMealName = ref('');
+const newMealName = ref('')
 const selectedIngredients = ref<{ icon: string; name: string }[]>([
   { icon: '🥛', name: 'UltraMilk · 500ml Original' },
   { icon: '🍞', name: 'Loaf of Bread · 300g' },
-]);
-const showIngredientSelector = ref(false);
+])
+const showIngredientSelector = ref(false)
 
 const removeIngredient = (index: number) => {
-  selectedIngredients.value.splice(index, 1);
-};
+  selectedIngredients.value.splice(index, 1)
+}
 
 const addMeal = () => {
   // In a real app, this would save to Firestore
-  alert(`Meal "${newMealName.value}" added!`);
-  newMealName.value = '';
-  selectedIngredients.value = [];
-};
+  alert(`Meal "${newMealName.value}" added!`)
+  newMealName.value = ''
+  selectedIngredients.value = []
+}
 
 // Recommendations
 const recommendations = ref<Recommendation[]>([
@@ -387,11 +368,11 @@ const recommendations = ref<Recommendation[]>([
     name: 'Milk Pancakes',
     uses: 'UltraMilk, Eggs, Flour',
   },
-]);
+])
 
 const navigateTo = (route: string) => {
-  router.push(route);
-};
+  router.push(route)
+}
 </script>
 
 <style scoped>
