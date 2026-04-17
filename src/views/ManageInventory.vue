@@ -55,8 +55,21 @@
         <input type="text" v-model="newItem.desc" placeholder="Short Description">
 
         <div class="row">
-          <input type="number" v-model.number="newItem.expiryDays" placeholder="Exp Days">
-          <select v-model="newItem.category">
+          <div class="field-stack">
+            <label class="field-label" for="expiryDate">Expiry Date</label>
+            <input
+              id="expiryDate"
+              v-model="newItem.expiryDate"
+              class="date-input"
+              :class="{ 'has-date': !!newItem.expiryDate }"
+              type="date"
+              :min="todayDate"
+            >
+            <div class="expiry-preview" :class="{ empty: !newItem.expiryDate, urgent: newItemExpiryDays !== null && newItemExpiryDays <= 3 }">
+              {{ newItemExpiryLabel }}
+            </div>
+          </div>
+          <select v-model="selectedStorage">
             <option value="fridge">Fridge</option>
             <option value="pantry">Pantry</option>
             <option value="freezer">Freezer</option>
@@ -486,7 +499,7 @@ export default {
       newItem: {
         name: '',
         desc: '',
-        expiryDays: 5,
+        expiryDate: '',
         category: 'fridge',
         volume: '1 item'
       },
@@ -510,6 +523,35 @@ export default {
     },
     qtyProgress() {
       return this.qtyMap[this.selectedQuantityLevel as keyof typeof this.qtyMap];
+    },
+    todayDate() {
+      return this.getDateInputValue();
+    },
+    newItemExpiryDays() {
+      if (!this.newItem.expiryDate) return null;
+      return this.calculateDaysUntil(this.newItem.expiryDate);
+    },
+    newItemExpiryLabel() {
+      if (!this.newItem.expiryDate) {
+        return 'Pick a date and we will calculate the days left.';
+      }
+
+      const daysLeft = this.newItemExpiryDays;
+      const readableDate = this.formatDisplayDate(this.newItem.expiryDate);
+
+      if (daysLeft === null) {
+        return `Expires on ${readableDate}`;
+      }
+
+      if (daysLeft === 0) {
+        return `Expires today, ${readableDate}.`;
+      }
+
+      if (daysLeft === 1) {
+        return `1 day left until ${readableDate}.`;
+      }
+
+      return `${daysLeft} days left until ${readableDate}.`;
     },
     useItemName() {
       const item = this.inventory.find(i => i.id === this.currentUseItemId);
@@ -687,6 +729,35 @@ export default {
       this.currentSort = this.sortModes[nextIndex]!;
       this.notifyMessage(`🔃 Sort set to ${this.getSortLabel(this.currentSort)}.`);
     },
+    getDateInputValue(date = new Date()) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    },
+    getFutureDateInputValue(daysFromToday: number) {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() + daysFromToday);
+      return this.getDateInputValue(date);
+    },
+    calculateDaysUntil(dateString: string) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const target = new Date(`${dateString}T00:00:00`);
+      target.setHours(0, 0, 0, 0);
+
+      const diffMs = target.getTime() - today.getTime();
+      return Math.max(0, Math.ceil(diffMs / 86400000));
+    },
+    formatDisplayDate(dateString: string) {
+      return new Date(`${dateString}T00:00:00`).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    },
     setQuantityLevel(level: string) {
       this.selectedQuantityLevel = level;
     },
@@ -694,7 +765,7 @@ export default {
       this.newItem = {
         name: '',
         desc: '',
-        expiryDays: 5,
+        expiryDate: this.getFutureDateInputValue(5),
         category: 'fridge',
         volume: '1 item'
       };
@@ -711,12 +782,20 @@ export default {
         return;
       }
 
+      if (!this.newItem.expiryDate) {
+        this.notifyMessage("Please select an expiry date");
+        return;
+      }
+
+      const expiryDays = this.calculateDaysUntil(this.newItem.expiryDate);
+
       const newItem = {
         id: `item_${this.nextId++}`,
         name: this.newItem.name,
         volume: this.newItem.volume || "1 item",
         location: "Custom",
-        expiryDays: this.newItem.expiryDays || 5,
+        expiryDays,
+        expiryDate: this.newItem.expiryDate,
         category: this.selectedStorage,
         searchTerms: this.newItem.name.toLowerCase(),
         quantityLevel: this.selectedQuantityLevel
@@ -1325,10 +1404,70 @@ footer {
   font-size: 0.9rem;
 }
 
+.modal-box input:focus,
+.modal-box select:focus {
+  border-color: #2c7a4d;
+  box-shadow: 0 0 0 3px rgba(44, 122, 77, 0.12);
+}
+
+.field-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #48617c;
+}
+
+.date-input {
+  color: #15314f;
+  background: #fff;
+}
+
+.date-input.has-date {
+  border-color: #b8ddc7;
+  background: #f8fff9;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  background: #e8f0ff;
+  border-radius: 10px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.expiry-preview {
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #f3f7fc;
+  color: #48617c;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.expiry-preview.empty {
+  background: #f8fafc;
+  color: #7b8da4;
+}
+
+.expiry-preview.urgent {
+  background: #fff1e8;
+  color: #c2591e;
+}
+
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+
+.row > * {
+  min-width: 0;
 }
 
 .row input[type="text"] {
@@ -1702,6 +1841,10 @@ footer {
 
   .row {
     grid-template-columns: 1fr;
+  }
+
+  .field-stack {
+    grid-column: span 1;
   }
 
   .row input[type="text"] {
