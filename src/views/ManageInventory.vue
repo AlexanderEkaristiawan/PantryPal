@@ -230,25 +230,18 @@
     </div>
 
     <div class="dashboard">
-      <!-- Sidebar -->
       <BaseSidebar :nav-items="navItems" />
 
       <div class="main-content">
-        <div class="top-bar">
-          <div class="page-title"><h2>Manage Inventory</h2></div>
-          <div class="top-bar-actions">
-            <div class="search-wrapper">
-              <i class="bi bi-search" style="-webkit-text-stroke: 1px currentColor"></i>
-              <input
-                type="text"
-                v-model="searchQuery"
-                placeholder="Search any food (milk, rice, ice cream...)"
-                autocomplete="off"
-              />
-            </div>
-            <div class="action-icons"><i class="bi bi-sliders"></i></div>
-          </div>
-        </div>
+        <BaseTopbar
+          title="Manage Inventory"
+          search-placeholder="Search any food (milk, rice, ice cream...)"
+          v-model:search-value="searchQuery"
+        >
+          <template #actions>
+            <i class="bi bi-sliders"></i>
+          </template>
+        </BaseTopbar>
 
         <div class="layout-toggle-bar" aria-label="Inventory layout selector">
           <div class="layout-toggle" role="group" aria-label="Choose inventory layout">
@@ -1016,17 +1009,19 @@ import BaseSidebar from '@/components/BaseSidebar.vue'
 import type { NavItem } from '@/components/BaseSidebar.vue'
 
 import { ref, computed } from 'vue'
+import BaseSidebar from '@/components/BaseSidebar.vue'
+import BaseTopbar from '@/components/BaseTopbar.vue'
+import type { NavItem } from '@/components/BaseSidebar.vue'
 
-// ---------- Navigation (same as other pages) ----------
-
-const navItems = ref<NavItem[]>([
+// Navigation items
+const navItems: NavItem[] = [
   { label: 'Dashboard', route: '/', icon: 'bi bi-graph-up' },
   { label: 'Inventory', route: '/inventory', icon: 'bi bi-box-seam' },
   { label: 'Meal Plan', route: '/meal-plan', icon: 'bi bi-calendar' },
   { label: 'Donation', route: '/donations', icon: 'bi bi-heart' },
   { label: 'Analytics', route: '/analytics', icon: 'bi bi-pie-chart' },
   { label: 'Settings', route: '/settings', icon: 'bi bi-gear' },
-])
+]
 
 // ---------- Inventory Data & Logic (converted from Options API) ----------
 interface InventoryItem {
@@ -1456,7 +1451,7 @@ function notifyMessage(msg: string) {
 </script>
 
 <style scoped>
-/* Your existing CSS goes here - copy all styles from the original file */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 * {
   margin: 0;
   padding: 0;
@@ -1608,6 +1603,20 @@ hr {
   display: flex;
   justify-content: flex-end;
   margin: -14px 0 24px;
+}
+  
+/* Bulk bar */
+.bulk-bar {
+  background: white;
+  border-radius: 28px;
+  padding: 14px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .layout-toggle {
@@ -2810,21 +2819,12 @@ footer {
 }
 
 @media (max-width: 1320px) {
-  .dashboard {
-    grid-template-columns: 232px minmax(0, 1fr) 248px;
-    gap: 22px;
-  }
-
   .food-grid {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }
 }
 
 @media (max-width: 1120px) {
-  .dashboard {
-    grid-template-columns: 232px minmax(0, 1fr);
-  }
-
   .top-bar {
     padding: 18px 24px;
   }
@@ -2848,10 +2848,6 @@ footer {
 }
 
 @media (max-width: 920px) {
-  .dashboard {
-    grid-template-columns: 1fr;
-  }
-
   .sidebar,
   .right-sidebar {
     position: static;

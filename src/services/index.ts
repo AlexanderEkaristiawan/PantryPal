@@ -1,4 +1,4 @@
-// services/index.js
+// services/index.ts
 // Central export for all SavePlate services
 
 export * from './authService'

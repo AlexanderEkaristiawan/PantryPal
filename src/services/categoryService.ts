@@ -1,4 +1,4 @@
-// services/categoryService.js
+// services/categoryService.ts
 import {
   collection,
   doc,
@@ -10,10 +10,18 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface Category {
+  id: string
+  name: string
+}
+
 const CAT_COL = 'categories'
 
-// ─── Default Categories (seed on first run) ───────────────────────────────────
-export const DEFAULT_CATEGORIES = [
+// ─── Default Categories ───────────────────────────────────────────────────────
+
+export const DEFAULT_CATEGORIES: Category[] = [
   { id: 'canned', name: 'Canned Goods' },
   { id: 'frozen', name: 'Frozen' },
   { id: 'dairy', name: 'Dairy' },
@@ -29,42 +37,35 @@ export const DEFAULT_CATEGORIES = [
 
 // ─── Get All Categories ───────────────────────────────────────────────────────
 
-export async function getCategories() {
+export async function getCategories(): Promise<Category[]> {
   const q = query(collection(db, CAT_COL), orderBy('name', 'asc'))
   const snap = await getDocs(q)
 
-  if (snap.empty) {
-    // Return defaults if Firestore has no categories yet
-    return DEFAULT_CATEGORIES
-  }
+  if (snap.empty) return DEFAULT_CATEGORIES
 
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+  return snap.docs.map(d => ({ id: d.id, ...d.data() } as Category))
 }
 
 // ─── Add Category ─────────────────────────────────────────────────────────────
 
-export async function addCategory(name) {
+export async function addCategory(name: string): Promise<string> {
   const docRef = await addDoc(collection(db, CAT_COL), { name })
   return docRef.id
 }
 
 // ─── Delete Category ──────────────────────────────────────────────────────────
 
-export async function deleteCategory(categoryId) {
+export async function deleteCategory(categoryId: string): Promise<void> {
   await deleteDoc(doc(db, CAT_COL, categoryId))
 }
 
 // ─── Seed Default Categories ──────────────────────────────────────────────────
 
-/**
- * Call once during app initialization to seed default categories.
- */
-export async function seedDefaultCategories() {
+export async function seedDefaultCategories(): Promise<void> {
   const existing = await getDocs(collection(db, CAT_COL))
-  if (!existing.empty) return // already seeded
+  if (!existing.empty) return
 
-  const promises = DEFAULT_CATEGORIES.map(cat =>
-    addDoc(collection(db, CAT_COL), { name: cat.name })
+  await Promise.all(
+    DEFAULT_CATEGORIES.map(cat => addDoc(collection(db, CAT_COL), { name: cat.name }))
   )
-  await Promise.all(promises)
 }
