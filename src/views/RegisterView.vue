@@ -2,46 +2,104 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import logo from '../assets/logo.svg'
+import { registerUser } from '../services/authService'
+import { isFirebaseError } from '@/utils/firebaseErrors'
 
 const router = useRouter()
 
 const email = ref('')
-const username = ref('')
+const name = ref('') // renamed from username → name (matches authService)
 const password = ref('')
 const confirmPassword = ref('')
-const household = ref('')
+const household = ref<number | ''>('')
 
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 
 const error = ref('')
+const success = ref('')
+const loading = ref(false)
 
-const handleRegister = () => {
-  if (password.value !== confirmPassword.value) {
-    error.value = 'The password does not match!'
+const handleRegister = async () => {
+  error.value = ''
+  success.value = ''
+
+  // ── Client-side validation ──────────────────────────────────────────────────
+  if (!email.value || !name.value || !password.value || !confirmPassword.value) {
+    error.value = 'All fields are required!'
     return
   }
 
-  // when user register succesfulky
-  alert('Register Succesfully!')
+  if (password.value.length < 6) {
+    error.value = 'Password must be at least 6 characters.'
+    return
+  }
 
-  // redirect to login
-  router.push('/login')
+  if (password.value !== confirmPassword.value) {
+    error.value = 'Passwords do not match!'
+    return
+  }
+
+  loading.value = true
+
+  try {
+    await registerUser({
+      name: name.value,
+      email: email.value,
+      password: password.value,
+      householdSize: household.value !== '' ? Number(household.value) : null,
+    })
+
+    // Show success and prompt to check email
+    success.value = 'Account created! Please check your email to verify your account.'
+
+    // Clear form
+    email.value = ''
+    name.value = ''
+    password.value = ''
+    confirmPassword.value = ''
+    household.value = ''
+
+    // Redirect to login after 2.5 seconds
+    setTimeout(() => {
+      router.push('/login')
+    }, 2500)
+  } catch (err: unknown) {
+    if (isFirebaseError(err)) {
+      switch (err.code) {
+        case 'auth/email-already-in-use':
+          error.value = 'An account with this email already exists.'
+          break
+        case 'auth/invalid-email':
+          error.value = 'Please enter a valid email address.'
+          break
+        case 'auth/weak-password':
+          error.value = 'Password is too weak. Use at least 6 characters.'
+          break
+        default:
+          error.value = 'Registration failed. Please try again.'
+      }
+    } else {
+      error.value = 'An unexpected error occurred. Please try again.'
+    }
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
 <template>
   <div class="auth-container">
-
     <div class="left">
       <div class="form-card">
-
         <img :src="logo" alt="logo" class="logo" />
 
         <h2>Register</h2>
 
-        <input v-model="email" type="email" placeholder="Email" />
-        <input v-model="username" type="text" placeholder="Username" />
+        <input v-model="email" type="email" placeholder="Email" :disabled="loading" />
+
+        <!-- NAME (was username) -->
+        <input v-model="name" type="text" placeholder="Full Name" :disabled="loading" />
 
         <!-- PASSWORD -->
         <div class="input-group">
@@ -49,6 +107,7 @@ const handleRegister = () => {
             v-model="password"
             :type="showPassword ? 'text' : 'password'"
             placeholder="Password"
+            :disabled="loading"
           />
           <i
             class="fa-solid"
@@ -63,6 +122,7 @@ const handleRegister = () => {
             v-model="confirmPassword"
             :type="showConfirmPassword ? 'text' : 'password'"
             placeholder="Confirm Password"
+            :disabled="loading"
           />
           <i
             class="fa-solid"
@@ -71,29 +131,39 @@ const handleRegister = () => {
           ></i>
         </div>
 
-        <input v-model="household" type="number" placeholder="Household Size" />
+        <input
+          v-model="household"
+          type="number"
+          placeholder="Household Size (optional)"
+          min="1"
+          :disabled="loading"
+        />
 
         <!-- ERROR MESSAGE -->
         <p v-if="error" class="error">{{ error }}</p>
 
-        <button @click="handleRegister">Register</button>
+        <!-- SUCCESS MESSAGE -->
+        <p v-if="success" class="success">{{ success }}</p>
+
+        <button @click="handleRegister" :disabled="loading">
+          <span v-if="loading">Creating account...</span>
+          <span v-else>Register</span>
+        </button>
 
         <!-- LINK TO LOGIN -->
         <p class="link">
           Already have an account?
           <span @click="router.push('/login')">Login</span>
         </p>
-
       </div>
     </div>
 
     <div class="right">
       <div>
-        <h3>Welcome to PantryPal</h3>
+        <h3>Welcome to SavePlate</h3>
         <p>Manage your food and reduce waste easily.</p>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -116,7 +186,7 @@ const handleRegister = () => {
   padding: 40px;
   border-radius: 16px;
   width: 400px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -155,6 +225,11 @@ input {
   outline: none;
 }
 
+input:disabled {
+  background: #f8fafc;
+  cursor: not-allowed;
+}
+
 .input-group input {
   padding-right: 40px;
 }
@@ -163,7 +238,6 @@ input:focus {
   border-color: #22c55e;
 }
 
-/* ICON FONT AWESOME */
 .input-group i {
   position: absolute;
   right: 10px;
@@ -173,14 +247,24 @@ input:focus {
   color: #555;
 }
 
-/* ERROR */
 .error {
-  color: red;
+  color: #ef4444;
   font-size: 12px;
   margin-top: 5px;
+  text-align: center;
 }
 
-/* BUTTON */
+.success {
+  color: #22c55e;
+  font-size: 12px;
+  margin-top: 5px;
+  text-align: center;
+  background: #f0fdf4;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+}
+
 button {
   width: 100%;
   padding: 12px;
@@ -191,13 +275,18 @@ button {
   color: white;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background: #16a34a;
 }
 
-/* LINK */
+button:disabled {
+  background: #86efac;
+  cursor: not-allowed;
+}
+
 .link {
   margin-top: 10px;
   font-size: 14px;

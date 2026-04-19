@@ -2,40 +2,79 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import logo from '../assets/logo.svg'
+import { loginUser } from '../services/authService'
+import { isFirebaseError } from '@/utils/firebaseErrors'
 
 const router = useRouter()
 
-const username = ref('')
+const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const error = ref('')
+const loading = ref(false)
 
-const handleLogin = () => {
-  if (!username.value || !password.value) {
-    error.value = 'Username and password are required!'
+const handleLogin = async () => {
+  error.value = ''
+
+  // Basic validation
+  if (!email.value || !password.value) {
+    error.value = 'Email and password are required!'
     return
   }
 
-  localStorage.setItem('isLogin', 'true')
+  loading.value = true
 
-  alert('Login berhasil!')
+  try {
+    const user = await loginUser(email.value, password.value)
 
-  router.push({ name: 'dashboard' })
+    // Optional: warn user if email is not yet verified
+    if (!user.emailVerified) {
+      error.value = 'Please verify your email before logging in.'
+      loading.value = false
+      return
+    }
+
+    router.push({ name: 'dashboard' })
+  } catch (err: unknown) {
+    if (isFirebaseError(err)) {
+      // Map Firebase error codes to friendly messages
+      switch (err.code) {
+        case 'auth/user-not-found':
+          error.value = 'No account found with this email.'
+          break
+        case 'auth/wrong-password':
+          error.value = 'Incorrect password. Please try again.'
+          break
+        case 'auth/invalid-email':
+          error.value = 'Please enter a valid email address.'
+          break
+        case 'auth/invalid-credential':
+          error.value = 'Invalid email or password.'
+          break
+        case 'auth/too-many-requests':
+          error.value = 'Too many failed attempts. Please try again later.'
+          break
+        default:
+          error.value = 'Login failed. Please try again.'
+      }
+    } else {
+      loading.value = false
+      error.value = 'An unexpected error occurred. Please try again.'
+    }
+  }
 }
-
 </script>
 
 <template>
   <div class="auth-container">
-
     <div class="left">
       <div class="form-card">
-
         <img :src="logo" alt="logo" class="logo" />
 
         <h2>Login</h2>
 
-        <input v-model="username" type="text" placeholder="Username" />
+        <!-- EMAIL (changed from username to email for Firebase) -->
+        <input v-model="email" type="email" placeholder="Email" :disabled="loading" />
 
         <!-- PASSWORD -->
         <div class="input-group">
@@ -43,6 +82,7 @@ const handleLogin = () => {
             v-model="password"
             :type="showPassword ? 'text' : 'password'"
             placeholder="Password"
+            :disabled="loading"
           />
           <i
             class="fa-solid"
@@ -54,14 +94,17 @@ const handleLogin = () => {
         <!-- ERROR -->
         <p v-if="error" class="error">{{ error }}</p>
 
-        <button @click="handleLogin">Login</button>
+        <!-- LOGIN BUTTON -->
+        <button @click="handleLogin" :disabled="loading">
+          <span v-if="loading">Logging in...</span>
+          <span v-else>Login</span>
+        </button>
 
         <!-- LINK TO REGISTER -->
         <p class="link">
-          Don’t have an account?
+          Don't have an account?
           <span @click="router.push('/register')">Register</span>
         </p>
-
       </div>
     </div>
 
@@ -71,7 +114,6 @@ const handleLogin = () => {
         <p>Login to manage your pantry efficiently.</p>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -94,7 +136,7 @@ const handleLogin = () => {
   padding: 40px;
   border-radius: 16px;
   width: 400px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -133,6 +175,11 @@ input {
   outline: none;
 }
 
+input:disabled {
+  background: #f8fafc;
+  cursor: not-allowed;
+}
+
 .input-group input {
   padding-right: 40px;
 }
@@ -141,7 +188,6 @@ input:focus {
   border-color: #22c55e;
 }
 
-/* ICON */
 .input-group i {
   position: absolute;
   right: 10px;
@@ -151,14 +197,13 @@ input:focus {
   color: #555;
 }
 
-/* ERROR */
 .error {
   color: red;
   font-size: 12px;
   margin-top: 5px;
+  text-align: center;
 }
 
-/* BUTTON */
 button {
   width: 100%;
   padding: 12px;
@@ -169,13 +214,18 @@ button {
   color: white;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background: #16a34a;
 }
 
-/* LINK */
+button:disabled {
+  background: #86efac;
+  cursor: not-allowed;
+}
+
 .link {
   margin-top: 10px;
   font-size: 14px;
