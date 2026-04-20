@@ -6,6 +6,7 @@ import ManageInventory from '../views/ManageInventory.vue'
 import PantryPalDonationListing from '../views/PantryPalDonationListing.vue'
 import PantryPalWeeklyMealPlan from '../views/PantryPalWeeklyMealPlan.vue'
 import Settings from '../views/Settings.vue'
+import Analytics from '../views/Analytics.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,6 +49,12 @@ const router = createRouter({
       component: Settings,
     },
     // analytics
+    {
+      path: '/analytics',
+      name: 'analytics',
+      component: Analytics,
+    },
+  
   ],
 })
 
