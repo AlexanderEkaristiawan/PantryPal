@@ -1592,7 +1592,7 @@ hr {
 
 .layout-toggle-bar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   margin: -14px 0 24px;
 }
 
@@ -1612,7 +1612,7 @@ hr {
 
 .layout-toggle {
   display: inline-grid;
-  grid-template-columns: repeat(2, minmax(470px, 1fr));
+  grid-template-columns: repeat(2, minmax(0px, 1fr));
   gap: 6px;
   background: white;
   border: 1px solid #dfe8f4;
