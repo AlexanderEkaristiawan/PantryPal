@@ -2,10 +2,7 @@
 <template>
   <aside class="sidebar">
     <div class="logo-area">
-      <div class="logo-icon">
-        <i :class="logoIcon"></i>
-      </div>
-      <div class="logo-text">{{ appName }}</div>
+      <img class="logo-image" :src="logoFull" :alt="appName" />
     </div>
     <nav>
       <div
@@ -26,6 +23,7 @@
 
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
+import logoFull from '@/assets/logo/full.png'
 
 export interface NavItem {
   label: string
@@ -37,11 +35,9 @@ withDefaults(
   defineProps<{
     navItems: NavItem[]
     appName?: string
-    logoIcon?: string
   }>(),
   {
     appName: 'PantryPal',
-    logoIcon: 'bi bi-cup-straw',
   },
 )
 
@@ -69,28 +65,14 @@ const navigateTo = (routePath: string) => router.push(routePath)
 .logo-area {
   display: flex;
   align-items: center;
-  gap: 14px;
   margin-bottom: 44px;
   padding-left: 6px;
 }
 
-.logo-icon {
-  background: #2c7a4d;
-  width: 48px;
-  height: 48px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 24px;
-}
-
-.logo-text {
-  font-weight: 800;
-  font-size: 1.55rem;
-  letter-spacing: -0.5px;
-  color: #1e3a2f;
+.logo-image {
+  display: block;
+  width: min(100%, 168px);
+  height: auto;
 }
 
 .nav-item {
