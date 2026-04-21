@@ -9,6 +9,12 @@ data() {
       appName: 'PantryPal',
       logoFull,
       logoFullWhite,
+      stats: [
+        { final: 10000, suffix: 'K+', label: 'Happy Users' },
+        { final: 500000, suffix: ' meals', label: 'Meals Planned' },
+        { final: 75, suffix: '%', label: 'Less Waste' },
+        { final: 2500, suffix: '+', label: 'Donations' }
+      ],
       scrolled: false,
       menuOpen: false,
     }
@@ -16,7 +22,9 @@ data() {
   mounted() {
     window.addEventListener('scroll', this.handleScroll)
     this.initIntersectionObserver()
+    this.initStatsObserver()
   },
+
   beforeUnmount() {
     window.removeEventListener('scroll', this.handleScroll)
   },
@@ -64,6 +72,32 @@ data() {
     },
     toggleMenu() {
       this.menuOpen = !this.menuOpen
+    },
+    animateCount(el) {
+      const target = parseInt(el.dataset.target);
+      const suffix = el.dataset.suffix || '';
+      let current = 0;
+      const increment = target / 100;
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+          el.textContent = `${target.toLocaleString()}${suffix}`;
+          clearInterval(timer);
+          return;
+        }
+        el.textContent = `${Math.floor(current).toLocaleString()}${suffix}`;
+      }, 20);
+    },
+    initStatsObserver() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.animateCount(entry.target);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.5 });
+      document.querySelectorAll('.stat-num').forEach((el) => observer.observe(el));
     },
   },
 }
@@ -263,6 +297,102 @@ data() {
         </div>
       </div>
     </section>
+
+    <!-- STATISTICS SECTION -->
+    <section id="stats" class="stats-section fade-up">
+      <div class="stats-container">
+        <p class="tagline">— By the Numbers</p>
+        <h2>Real Impact</h2>
+        <div class="stats-grid">
+          <div v-for="(stat, index) in stats" :key="'stat-' + index" class="stat-item">
+            <div
+              class="stat-num"
+              :data-target="stat.final"
+              :data-suffix="stat.suffix"
+            >0</div>
+            <div class="stat-label">{{ stat.label }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW TO USE SECTION -->
+    <section id="howto" class="howto-section">
+      <div class="section-heading">
+        <p class="tagline">— Get Started in Seconds</p>
+        <h2>How It Works</h2>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card fade-up">
+          <span class="step-number">1</span>
+          <h3>Add Your Items</h3>
+          <p>Scan or manually add groceries with expiry dates.</p>
+        </div>
+        <div class="step-card fade-left">
+          <span class="step-number">2</span>
+          <h3>Get Smart Alerts</h3>
+          <p>Receive notifications for items nearing expiry.</p>
+        </div>
+        <div class="step-card fade-right">
+          <span class="step-number">3</span>
+          <h3>Plan Meals</h3>
+          <p>Generate weekly plans from your inventory.</p>
+        </div>
+        <div class="step-card fade-up">
+          <span class="step-number">4</span>
+          <h3>Share Surplus</h3>
+          <p>Donate items before they go to waste.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="cta-section fade-up">
+      <div class="cta-content">
+        <h2>Ready to Transform Your Pantry?</h2>
+        <p>Join thousands reducing waste and saving money.</p>
+        <div class="cta-buttons">
+          <button class="btn-primary cta-btn-large" @click="goToRegister">Get Started Free</button>
+          <a href="#" class="btn-outline" @click.prevent="scrollToTop">Learn More →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-brand">
+          <a href="#" class="nav-logo" @click.prevent="scrollToTop">
+            <img class="logo-image small" :src="logoSrc" :alt="appName" />
+            <span class="nav-logo-text">PantryPal</span>
+          </a>
+        </div>
+        <div class="footer-links">
+          <div class="link-group">
+            <h4>Product</h4>
+            <a href="#features" @click.prevent="scrollToSection('features')">Features</a>
+            <a href="#howto" @click.prevent="scrollToSection('howto')">How It Works</a>
+            <a href="#about" @click.prevent="scrollToSection('about')">About</a>
+          </div>
+          <div class="link-group">
+            <h4>Company</h4>
+            <a href="#mission" @click.prevent="scrollToSection('mission')">Mission</a>
+            <a href="#">Careers</a>
+            <a href="#">Press</a>
+          </div>
+          <div class="link-group">
+            <h4>Support</h4>
+            <a href="#">Help Center</a>
+            <a href="#">Contact</a>
+            <a href="#">Privacy</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 PantryPal. All rights reserved. Made with ❤️ to reduce food waste.</p>
+        </div>
+      </div>
+    </footer>
+
   </div>
 </template>
 
@@ -1165,5 +1295,210 @@ nav.open {
   width: min(100%, 175px);
   height: auto;
 
+}
+
+/* STATISTICS SECTION */
+.stats-section {
+  background: var(--surface-soft);
+  padding: clamp(76px, 10vw, 124px) clamp(24px, 7vw, 92px);
+  text-align: center;
+}
+
+.stats-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  margin-top: 54px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stat-num {
+  color: var(--clay);
+  font-family: Georgia, serif;
+  font-size: clamp(1rem, 3vw, 4rem);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* HOW TO USE SECTION */
+.howto-section {
+  padding: clamp(76px, 10vw, 124px) clamp(24px, 7vw, 92px);
+  background: var(--surface);
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  margin-top: 50px;
+}
+
+.step-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 40px 30px;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.step-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--sage);
+}
+
+.step-number {
+  background: var(--sage);
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+.step-card h3 {
+  color: var(--forest);
+  margin: 0 0 12px;
+  font-size: 1.25rem;
+}
+
+.step-card p {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* CTA SECTION */
+.cta-section {
+  padding: clamp(60px, 8vw, 100px) 24px;
+  background: var(--surface);
+}
+
+.cta-content {
+  background: var(--forest);
+  background-image: radial-gradient(circle at top right, var(--deep-sage), transparent);
+  border-radius: 24px;
+  color: white;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: clamp(40px, 8vw, 80px) 30px;
+  text-align: center;
+  box-shadow: 0 30px 60px rgba(36, 63, 45, 0.2);
+}
+
+.cta-content h2 {
+  font-family: Georgia, serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  margin: 0 0 20px;
+}
+
+.cta-content p {
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  color: rgba(255, 253, 248, 0.8);
+  margin-bottom: 40px;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-btn-large {
+  padding: 16px 40px;
+  font-size: 1.1rem;
+}
+
+/* FOOTER */
+.footer {
+  background: var(--surface-soft);
+  border-top: 1px solid var(--border);
+  padding: 80px clamp(24px, 7vw, 92px) 40px;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-brand {
+  margin-bottom: 50px;
+}
+
+.logo-image.small {
+  width: 140px;
+}
+
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 40px;
+  margin-bottom: 60px;
+}
+
+.link-group h4 {
+  color: var(--forest);
+  font-size: 1rem;
+  margin: 0 0 20px;
+  font-weight: 700;
+}
+
+.link-group a {
+  display: block;
+  color: var(--muted);
+  text-decoration: none;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+
+.link-group a:hover {
+  color: var(--clay);
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--border);
+  padding-top: 30px;
+  text-align: center;
+}
+
+.footer-bottom p {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* RESPONSIVE TWEAKS */
+@media (max-width: 640px) {
+  .cta-buttons {
+    flex-direction: column;
+  }
+
+  .footer-links {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>
