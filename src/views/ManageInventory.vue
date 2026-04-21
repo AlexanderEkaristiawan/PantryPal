@@ -1005,6 +1005,7 @@ import type { NavItem } from '@/components/BaseSidebar.vue'
 import { ref, computed } from 'vue'
 import BaseSidebar from '@/components/BaseSidebar.vue'
 import BaseTopbar from '@/components/BaseTopbar.vue'
+import { addLocalAnalyticsEvent, addLocalAnalyticsEvents } from '@/services/localAnalyticsStore'
 
 // Navigation items
 const navItems: NavItem[] = [
@@ -1131,6 +1132,30 @@ const qtyMap: Record<QuantityLevel, { percent: string; color: string; label: str
   half: { percent: '50%', color: '#d97706', label: 'Half (50%)' },
   high: { percent: '75%', color: '#16a34a', label: 'High (75%)' },
   full: { percent: '100%', color: '#6b7280', label: 'Full (100%)' },
+}
+
+function getVolumeQuantity(volume: string): number {
+  const match = volume.match(/[\d.]+/)
+  if (!match) return 1
+
+  const quantity = Number(match[0])
+  return Number.isFinite(quantity) && quantity > 0 ? quantity : 1
+}
+
+function getVolumeUnit(volume: string): string {
+  const match = volume.match(/[\d.]+\s*([a-zA-Z]+)/)
+  return match?.[1] || 'item'
+}
+
+function recordInventoryAnalytics(item: InventoryItem, kind: 'used' | 'donated') {
+  addLocalAnalyticsEvent({
+    kind,
+    name: item.name,
+    category: item.category,
+    foodType: item.foodType,
+    quantity: getVolumeQuantity(item.volume),
+    unit: getVolumeUnit(item.volume),
+  })
 }
 
 // ---------- Computed ----------
@@ -1260,6 +1285,7 @@ function finishItem() {
   if (!currentUseItemId.value) return
   const item = inventory.value.find((i) => i.id === currentUseItemId.value)
   if (!item) return
+  recordInventoryAnalytics(item, 'used')
   inventory.value = inventory.value.filter((i) => i.id !== currentUseItemId.value)
   selectedDonationIds.value.delete(currentUseItemId.value)
   closeUseModal()
@@ -1276,6 +1302,8 @@ function confirmUse() {
 }
 
 function singleDonate(id: string) {
+  const item = inventory.value.find((i) => i.id === id)
+  if (item) recordInventoryAnalytics(item, 'donated')
   inventory.value = inventory.value.filter((i) => i.id !== id)
   selectedDonationIds.value.delete(id)
   notifyMessage('Donated item. Thank you for sharing!')
@@ -1300,7 +1328,20 @@ function clearAllSelections() {
 function bulkDonateAction() {
   if (selectedDonationIds.value.size === 0) return
   const ids = Array.from(selectedDonationIds.value)
-  const names = ids.map((id) => inventory.value.find((i) => i.id === id)?.name || 'item')
+  const selectedItems = ids
+    .map((id) => inventory.value.find((i) => i.id === id))
+    .filter((item): item is InventoryItem => Boolean(item))
+  const names = selectedItems.map((item) => item.name)
+  addLocalAnalyticsEvents(
+    selectedItems.map((item) => ({
+      kind: 'donated',
+      name: item.name,
+      category: item.category,
+      foodType: item.foodType,
+      quantity: getVolumeQuantity(item.volume),
+      unit: getVolumeUnit(item.volume),
+    })),
+  )
   inventory.value = inventory.value.filter((i) => !selectedDonationIds.value.has(i.id))
   selectedDonationIds.value.clear()
   notifyMessage(`Donated ${ids.length} item(s): ${names.join(', ')}. Thank you for reducing waste!`)
