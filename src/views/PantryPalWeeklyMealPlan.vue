@@ -80,7 +80,7 @@
                 placeholder="Search items..."
                 class="form-control form-control-sm"
               />
-              <button class="filter-btn-sm" @click="inventorySearch = ''">Clear</button>
+              <button class="filter-btn-sm" @click="inventorySearch = ''">Filter</button>
             </div>
             <div class="inventory-list">
               <div v-for="item in filteredInventory" :key="item.id" class="inventory-item">
