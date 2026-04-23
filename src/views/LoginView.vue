@@ -5,6 +5,7 @@ import logoFull from '@/assets/logo/full.png'
 import loginBackground from '@/assets/background/bg1.png'
 import { loginUser } from '../services/authService'
 import { isFirebaseError } from '@/utils/firebaseErrors'
+import { sendOTPEmail } from '@/services/emailService'
 
 const router = useRouter()
 
@@ -72,7 +73,7 @@ onUnmounted(() => {
 const handleLogin = async () => {
   error.value = ''
 
-  // Basic validation
+  // validation
   if (!email.value || !password.value) {
     error.value = 'Email and password are required!'
     return
@@ -83,17 +84,29 @@ const handleLogin = async () => {
   try {
     const user = await loginUser(email.value, password.value)
 
-    // Optional: warn user if email is not yet verified
+    // cek email verification
     if (!user.emailVerified) {
       error.value = 'Please verify your email before logging in.'
       loading.value = false
       return
     }
 
-    router.push({ name: 'dashboard' })
+    // generate OTP random (6 digit)
+    const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString()
+
+    // simpan ke localStorage
+    localStorage.setItem('otp_email', email.value)
+    localStorage.setItem('otp_code', generatedOTP)
+    localStorage.setItem('otp_expiry', (Date.now() + 180000).toString()) // 3 menit
+
+    // kirim email OTP
+    await sendOTPEmail(email.value, generatedOTP)
+
+    // redirect ke OTP page
+    router.push({ name: 'otp' })
+
   } catch (err: unknown) {
     if (isFirebaseError(err)) {
-      // Map Firebase error codes to friendly messages
       switch (err.code) {
         case 'auth/user-not-found':
           error.value = 'No account found with this email.'
@@ -114,9 +127,10 @@ const handleLogin = async () => {
           error.value = 'Login failed. Please try again.'
       }
     } else {
-      loading.value = false
       error.value = 'An unexpected error occurred. Please try again.'
     }
+  } finally {
+    loading.value = false
   }
 }
 </script>
