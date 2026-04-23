@@ -105,7 +105,14 @@
               <div class="card-desc">{{ item.description }}</div>
               <div class="card-actions">
                 <button class="action-btn">Details</button>
-                <button class="action-btn primary">Claim</button>
+                <button
+                  class="action-btn"
+                  :class="claimedIds.has(item.id) ? 'claimed' : 'primary'"
+                  :disabled="claimedIds.has(item.id)"
+                  @click="claimListing(item.id)"
+                >
+                  {{ claimedIds.has(item.id) ? '✓ Claimed' : 'Claim' }}
+                </button>
               </div>
             </div>
           </div>
@@ -158,6 +165,7 @@ interface DonationItem {
   tags: Tag[]
   description: string
   expiryDays?: number
+  claimed?: boolean
 }
 
 const navItems: NavItem[] = [
@@ -336,6 +344,28 @@ const cycleFilter = () => {
 
 const toggleBrowseSection = () => {
   showBrowseDonations.value = !showBrowseDonations.value
+}
+
+// Track claimed listing IDs to update UI instantly
+const claimedIds = ref<Set<number>>(new Set())
+
+// Notification helper (matching singleDonate pattern)
+const notifyMessage = (msg: string) => alert(msg)
+
+function claimListing(id: number) {
+  // Prevent claiming the same item twice
+  if (claimedIds.value.has(id)) {
+    notifyMessage('You have already claimed this item.')
+    return
+  }
+
+  // Mark as claimed locally
+  claimedIds.value.add(id)
+
+  // Remove from the browse listings so it disappears from the grid
+  allListings.value = allListings.value.filter((i) => i.id !== id)
+
+  notifyMessage('Item claimed! The donor will be notified. 🎉')
 }
 
 const postDonationNavigate = () => alert('Posting donation (prototype)')
@@ -575,6 +605,13 @@ const setPickupLocationNavigate = () => alert('Setting pickup location (prototyp
   background: #fee2e2;
   color: #991b1b;
   border: none;
+}
+
+.action-btn.claimed {
+  background: #e2e8f0;
+  color: #64748b;
+  border: none;
+  cursor: not-allowed;
 }
 
 .action-btn.danger:hover {
