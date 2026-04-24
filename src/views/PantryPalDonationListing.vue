@@ -4,18 +4,6 @@
       <BaseSidebar :nav-items="navItems" />
 
       <div class="main-content">
-        <BaseTopbar
-          title="Donations"
-          search-placeholder="Search by item, category, location..."
-          v-model:search-value="searchQuery"
-        >
-          <template #actions>
-            <i class="bi bi-bell"></i>
-            <i class="bi bi-gear"></i>
-            <i class="bi bi-box-arrow-right"></i>
-          </template>
-        </BaseTopbar>
-
         <!-- Hero Banner -->
         <div class="hero-banner">
           <div class="hero-icon">🤝</div>
@@ -48,24 +36,59 @@
               <div class="card-desc">{{ item.description }}</div>
               <div class="card-actions">
                 <button class="action-btn">Details</button>
-                <button class="action-btn primary">Claim</button>
+                <button class="action-btn danger">Unpublish</button>
               </div>
             </div>
           </div>
-          <button class="browse-all-btn">Browse All Donations →</button>
+          <button class="browse-all-btn" @click="toggleBrowseSection">
+            {{ showBrowseDonations ? 'Hide Browse Donations' : 'Browse All Donations' }} →
+          </button>
         </section>
 
         <!-- Browse All Section -->
-        <section class="section">
+        <section v-if="showBrowseDonations" class="section">
+          <BaseTopbar
+            title="Donations"
+            search-placeholder="Search by item, category, location..."
+            v-model:search-value="searchQuery"
+          >
+          </BaseTopbar>
           <div class="section-header">
             <h3>Browse Donations</h3>
-            <div class="filter-sort">
-              <button class="filter-btn" @click="cycleSort">
-                <i class="bi bi-arrow-down-up"></i> Sort: {{ sortLabel }}
-              </button>
-              <button class="filter-btn" @click="cycleFilter">
-                <i class="bi bi-funnel"></i> Filter: {{ filterLabel }}
-              </button>
+            <div class="filter-bar">
+              <div class="filter-sort">
+                <!-- Location Dropdown -->
+                <select v-model="filterPickupLocation" class="filter-btn">
+                  <option value="">All Locations</option>
+                  <option v-for="loc in availableLocations" :key="loc" :value="loc">
+                    {{ loc }}
+                  </option>
+                </select>
+
+                <!-- Category Dropdown -->
+                <select v-model="filterCategory" class="filter-btn">
+                  <option value="">All Categories</option>
+                  <option v-for="cat in availableCategories" :key="cat" :value="cat">
+                    {{ cat }}
+                  </option>
+                </select>
+
+                <!-- Expiry Range Dropdown -->
+                <select v-model="filterExpiryDays" class="filter-btn">
+                  <option v-for="opt in expiryRangeOptions" :key="opt.label" :value="opt.value">
+                    Expiry: {{ opt.label }}
+                  </option>
+                </select>
+
+                <!-- Sort & Quick Filter Buttons -->
+
+                <button class="filter-btn" @click="cycleSort">
+                  <i class="bi bi-arrow-down-up"></i> Sort: {{ sortLabel }}
+                </button>
+                <button class="filter-btn" @click="cycleFilter">
+                  <i class="bi bi-funnel"></i> {{ filterLabel }}
+                </button>
+              </div>
             </div>
           </div>
           <div class="cards-grid">
@@ -82,7 +105,14 @@
               <div class="card-desc">{{ item.description }}</div>
               <div class="card-actions">
                 <button class="action-btn">Details</button>
-                <button class="action-btn primary">Claim</button>
+                <button
+                  class="action-btn"
+                  :class="claimedIds.has(item.id) ? 'claimed' : 'primary'"
+                  :disabled="claimedIds.has(item.id)"
+                  @click="claimListing(item.id)"
+                >
+                  {{ claimedIds.has(item.id) ? '✓ Claimed' : 'Claim' }}
+                </button>
               </div>
             </div>
           </div>
@@ -95,8 +125,12 @@
         :expiring-soon="expiringSoonCount"
       >
         <template #quick-actions>
-          <button class="right-btn"><i class="bi bi-plus-circle"></i> Post Donation</button>
-          <button class="right-btn"><i class="bi bi-geo-alt"></i> Set Pickup Location</button>
+          <button class="right-btn" @click="postDonationNavigate">
+            <i class="bi bi-plus-circle"></i> Post Donation
+          </button>
+          <button class="right-btn" @click="setPickupLocationNavigate">
+            <i class="bi bi-geo-alt"></i> Set Pickup Location
+          </button>
         </template>
         <template #stats>
           <div class="stat-item">
@@ -131,10 +165,11 @@ interface DonationItem {
   tags: Tag[]
   description: string
   expiryDays?: number
+  claimed?: boolean
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', route: '/', icon: 'bi bi-graph-up' },
+  { label: 'Dashboard', route: '/dashboard', icon: 'bi bi-graph-up' },
   { label: 'Inventory', route: '/inventory', icon: 'bi bi-box-seam' },
   { label: 'Meal Plan', route: '/meal-plan', icon: 'bi bi-calendar' },
   { label: 'Donation', route: '/donations', icon: 'bi bi-heart' },
@@ -145,6 +180,44 @@ const navItems: NavItem[] = [
 const searchQuery = ref('')
 const currentSort = ref<'name' | 'expiry'>('name')
 const currentFilter = ref<'all' | 'near-expiry'>('all')
+const showBrowseDonations = ref(false)
+
+// NEW FILTER STATES
+const filterPickupLocation = ref('')
+const filterCategory = ref('')
+const filterExpiryDays = ref<number | null>(null) // e.g., 1, 3, 7, or null for all
+
+// Extract unique locations and categories from listings (computed)
+const availableLocations = computed(() => {
+  const locations = new Set<string>()
+  allListings.value.forEach((item) => {
+    // Assuming description contains location text like "pickup Kerobokan"
+    const match = item.description.match(/pickup\s+([^.,]+)/i)
+    if (match) locations.add(match[1]!.trim())
+  })
+  return Array.from(locations).sort()
+})
+
+const availableCategories = computed(() => {
+  const categories = new Set<string>()
+  allListings.value.forEach((item) => {
+    item.tags.forEach((tag) => {
+      // Exclude special tags like expiry warnings or "Active"
+      if (!['green', 'warn'].includes(tag.variant || '') && !tag.label.match(/exp|active|left/i)) {
+        categories.add(tag.label)
+      }
+    })
+  })
+  return Array.from(categories).sort()
+})
+
+const expiryRangeOptions = [
+  { label: 'All', value: null },
+  { label: 'Today', value: 0 },
+  { label: 'Within 2 days', value: 2 },
+  { label: 'Within 3 days', value: 3 },
+  { label: 'Within 7 days', value: 7 },
+]
 
 const recentListings = ref<DonationItem[]>([
   {
@@ -209,6 +282,7 @@ const allListings = ref<DonationItem[]>([
 const filteredListings = computed(() => {
   let items = [...allListings.value]
 
+  // Search query filter (existing)
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
     items = items.filter(
@@ -219,10 +293,29 @@ const filteredListings = computed(() => {
     )
   }
 
+  // Near-expiry quick filter (existing)
   if (currentFilter.value === 'near-expiry') {
     items = items.filter((item) => (item.expiryDays ?? 999) <= 3)
   }
 
+  // NEW: Location filter
+  if (filterPickupLocation.value) {
+    items = items.filter((item) =>
+      item.description.toLowerCase().includes(`pickup ${filterPickupLocation.value.toLowerCase()}`),
+    )
+  }
+
+  // NEW: Category filter
+  if (filterCategory.value) {
+    items = items.filter((item) => item.tags.some((tag) => tag.label === filterCategory.value))
+  }
+
+  // NEW: Expiry days filter (max days)
+  if (filterExpiryDays.value !== null) {
+    items = items.filter((item) => (item.expiryDays ?? 999) <= filterExpiryDays.value!)
+  }
+
+  // Sort (existing)
   items.sort((a, b) => {
     if (currentSort.value === 'expiry') {
       return (a.expiryDays ?? 999) - (b.expiryDays ?? 999)
@@ -248,6 +341,35 @@ const cycleSort = () => {
 const cycleFilter = () => {
   currentFilter.value = currentFilter.value === 'all' ? 'near-expiry' : 'all'
 }
+
+const toggleBrowseSection = () => {
+  showBrowseDonations.value = !showBrowseDonations.value
+}
+
+// Track claimed listing IDs to update UI instantly
+const claimedIds = ref<Set<number>>(new Set())
+
+// Notification helper (matching singleDonate pattern)
+const notifyMessage = (msg: string) => alert(msg)
+
+function claimListing(id: number) {
+  // Prevent claiming the same item twice
+  if (claimedIds.value.has(id)) {
+    notifyMessage('You have already claimed this item.')
+    return
+  }
+
+  // Mark as claimed locally
+  claimedIds.value.add(id)
+
+  // Remove from the browse listings so it disappears from the grid
+  allListings.value = allListings.value.filter((i) => i.id !== id)
+
+  notifyMessage('Item claimed! The donor will be notified. 🎉')
+}
+
+const postDonationNavigate = () => alert('Posting donation (prototype)')
+const setPickupLocationNavigate = () => alert('Setting pickup location (prototype)')
 </script>
 
 <style scoped>
@@ -479,6 +601,23 @@ const cycleFilter = () => {
   background: #1f5e3a;
 }
 
+.action-btn.danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border: none;
+}
+
+.action-btn.claimed {
+  background: #e2e8f0;
+  color: #64748b;
+  border: none;
+  cursor: not-allowed;
+}
+
+.action-btn.danger:hover {
+  background: #fecaca;
+}
+
 .action-btn:hover {
   background: #f3f6fb;
 }
@@ -580,5 +719,51 @@ const cycleFilter = () => {
 .right-btn i {
   width: 20px;
   color: #2c7a4d;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filter-select {
+  padding: 8px 16px;
+  border-radius: 40px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  font-size: 0.9rem;
+  color: #2c3e4e;
+  cursor: pointer;
+  outline: none;
+  min-width: 150px;
+}
+
+.filter-select:focus {
+  border-color: #2c7a4d;
+  box-shadow: 0 0 0 2px rgba(44, 122, 77, 0.1);
+}
+
+.filter-sort {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-select {
+    width: 100%;
+  }
+  .filter-sort {
+    margin-left: 0;
+    justify-content: space-between;
+  }
 }
 </style>

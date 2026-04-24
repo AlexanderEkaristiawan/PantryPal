@@ -1002,14 +1002,17 @@
 
 <script setup lang="ts">
 import type { NavItem } from '@/components/BaseSidebar.vue'
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import BaseSidebar from '@/components/BaseSidebar.vue'
 import BaseTopbar from '@/components/BaseTopbar.vue'
 import { addLocalAnalyticsEvent, addLocalAnalyticsEvents } from '@/services/localAnalyticsStore'
 
+const route = useRoute()
+
 // Navigation items
 const navItems: NavItem[] = [
-  { label: 'Dashboard', route: '/', icon: 'bi bi-graph-up' },
+  { label: 'Dashboard', route: '/dashboard', icon: 'bi bi-graph-up' },
   { label: 'Inventory', route: '/inventory', icon: 'bi bi-box-seam' },
   { label: 'Meal Plan', route: '/meal-plan', icon: 'bi bi-calendar' },
   { label: 'Donation', route: '/donations', icon: 'bi bi-heart' },
@@ -1556,6 +1559,23 @@ function openAddModal() {
 function closeAddModal() {
   addModalOpen.value = false
 }
+
+// Watch for query parameter to auto-open add modal
+watch(
+  () => route.query.action,
+  (action) => {
+    if (action === 'add') {
+      openAddModal()
+    }
+  }
+)
+
+// Check for query parameter on mount
+onMounted(() => {
+  if (route.query.action === 'add') {
+    openAddModal()
+  }
+})
 
 function confirmAdd() {
   if (!newItem.value.name) {
