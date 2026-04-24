@@ -71,31 +71,28 @@ const verifyOTP = () => {
   const savedOTP = localStorage.getItem('otp_code')
   const expiry = localStorage.getItem('otp_expiry')
 
-  // ✅ 1. VALIDASI PANJANG DULU
+
   if (finalOTP.length !== 6) {
     error.value = 'OTP must be 6 digits!'
     return
   }
 
-  // ✅ 2. CEK ADA OTP
   if (!savedOTP) {
     error.value = 'No OTP found. Please login again.'
     return
   }
 
-  // ✅ 3. BARU CEK EXPIRED
   if (!expiry || Date.now() > Number(expiry)) {
     error.value = 'OTP expired!'
     return
   }
 
-  // ✅ 4. CEK BENAR / SALAH
   if (finalOTP !== savedOTP) {
     error.value = 'Wrong OTP!'
     return
   }
 
-  // success
+
   localStorage.removeItem('otp_code')
   localStorage.removeItem('otp_expiry')
   localStorage.setItem('isLogin', 'true')
