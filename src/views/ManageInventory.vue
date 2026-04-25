@@ -43,7 +43,7 @@
         </div>
 
         <button
-          @click="finishItem"
+          @click="requestFinishItem"
           style="
             margin-top: 10px;
             background: #fee2e2;
@@ -65,6 +65,28 @@
       </div>
     </div>
 
+    <div v-if="confirmationModalOpen" class="modal-overlay confirmation-overlay" style="display: flex">
+      <div class="modal-box confirmation-modal">
+        <h2>{{ confirmationConfig.title }}</h2>
+        <p class="confirmation-copy">
+          {{ confirmationConfig.message }}
+          <strong>{{ confirmationItemName }}</strong
+          >?
+        </p>
+
+        <div class="modal-actions">
+          <button type="button" @click="closeConfirmationModal" class="modal-cancel">Cancel</button>
+          <button
+            type="button"
+            @click="confirmPendingAction"
+            class="modal-add modal-danger"
+          >
+            {{ confirmationConfig.confirmLabel }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- ADD ITEM MODAL -->
     <div v-if="addModalOpen" class="modal-overlay" style="display: flex">
       <div class="modal-box">
@@ -72,13 +94,13 @@
 
         <div class="form-section">
           <label class="field-label"
-            >Food Item Title <span class="char-count">({{ newItem.name.length }}/25)</span></label
+            >Food Item Title <span class="char-count">({{ newItem.name.length }}/20)</span></label
           >
           <input
             type="text"
             v-model="newItem.name"
             placeholder="Enter food item name"
-            maxlength="25"
+            maxlength="20"
             class="form-input"
           />
         </div>
@@ -132,13 +154,13 @@
           <div class="form-section">
             <label class="field-label"
               >Volume/Quantity
-              <span class="char-count">({{ newItem.volume.length }}/10)</span></label
+              <span class="char-count">({{ newItem.volume.length }}/7)</span></label
             >
             <input
               type="text"
               v-model="newItem.volume"
               placeholder="e.g., 500ml, 1kg, 12 pieces"
-              maxlength="10"
+              maxlength="7"
               class="form-input"
             />
           </div>
@@ -409,17 +431,15 @@
                           <i class="bi bi-exclamation-triangle"></i> expires in
                           {{ item.expiryDays }}d
                         </span>
-
                         <span v-else class="expiry-badge">
                           <i class="bi bi-clock"></i> {{ item.expiryDays }}d left
                         </span>
-
+                      </div>
+                      <div class="row5">
                         <span class="tag storage-tag">{{ item.category }}</span>
                         <span class="tag type-tag">{{ item.foodType }}</span>
+                        <span class="volume-badge">{{ item.volume }}</span>
                       </div>
-                    </div>
-                    <div class="card-badges">
-                      <span class="volume-badge">{{ item.volume }}</span>
                     </div>
                   </div>
 
@@ -452,7 +472,7 @@
                   </div>
 
                   <div class="food-extra-actions">
-                    <button class="mini-btn delete-item" @click="deleteItem(item.id)">
+                    <button class="mini-btn delete-item" @click="requestDeleteItem(item.id)">
                       <i class="bi bi-trash"></i> Delete
                     </button>
                     <button class="mini-btn use-item" @click="openUseModal(item.id)">
@@ -557,7 +577,7 @@
                   </div>
 
                   <div class="food-extra-actions">
-                    <button class="mini-btn delete-item" @click="deleteItem(item.id)">
+                    <button class="mini-btn delete-item" @click="requestDeleteItem(item.id)">
                       <i class="bi bi-trash"></i> Delete
                     </button>
                     <button class="mini-btn use-item" @click="openUseModal(item.id)">
@@ -662,7 +682,7 @@
                   </div>
 
                   <div class="food-extra-actions">
-                    <button class="mini-btn delete-item" @click="deleteItem(item.id)">
+                    <button class="mini-btn delete-item" @click="requestDeleteItem(item.id)">
                       <i class="bi bi-trash"></i> Delete
                     </button>
                     <button class="mini-btn use-item" @click="openUseModal(item.id)">
@@ -767,7 +787,7 @@
                   </div>
 
                   <div class="food-extra-actions">
-                    <button class="mini-btn delete-item" @click="deleteItem(item.id)">
+                    <button class="mini-btn delete-item" @click="requestDeleteItem(item.id)">
                       <i class="bi bi-trash"></i> Delete
                     </button>
                     <button class="mini-btn use-item" @click="openUseModal(item.id)">
@@ -872,7 +892,7 @@
                   </div>
 
                   <div class="food-extra-actions">
-                    <button class="mini-btn delete-item" @click="deleteItem(item.id)">
+                    <button class="mini-btn delete-item" @click="requestDeleteItem(item.id)">
                       <i class="bi bi-trash"></i> Delete
                     </button>
                     <button class="mini-btn use-item" @click="openUseModal(item.id)">
@@ -977,7 +997,7 @@
                   </div>
 
                   <div class="food-extra-actions">
-                    <button class="mini-btn delete-item" @click="deleteItem(item.id)">
+                    <button class="mini-btn delete-item" @click="requestDeleteItem(item.id)">
                       <i class="bi bi-trash"></i> Delete
                     </button>
                     <button class="mini-btn use-item" @click="openUseModal(item.id)">
@@ -1220,6 +1240,7 @@ const STORAGE_KEYS = {
 function saveToLocalStorage<T>(key: string, value: T) {
   try {
     localStorage.setItem(key, JSON.stringify(value))
+    console.log(`Saved to localStorage: ${key}`, value)
   } catch (error) {
     console.error('Error saving to localStorage:', error)
   }
@@ -1228,7 +1249,13 @@ function saveToLocalStorage<T>(key: string, value: T) {
 function loadFromLocalStorage<T>(key: string, defaultValue: T): T {
   try {
     const item = localStorage.getItem(key)
-    return item ? JSON.parse(item) : defaultValue
+    if (item) {
+      const parsed = JSON.parse(item)
+      console.log(`Loaded from localStorage: ${key}`, parsed)
+      return parsed
+    }
+    console.log(`No data in localStorage for: ${key}, using default`, defaultValue)
+    return defaultValue
   } catch (error) {
     console.error('Error loading from localStorage:', error)
     return defaultValue
@@ -1338,7 +1365,10 @@ watch(currentSort, (newSort) => {
 
 const addModalOpen = ref(false)
 const useModalOpen = ref(false)
+const confirmationModalOpen = ref(false)
 const currentUseItemId = ref<string | null>(null)
+const confirmationItemId = ref<string | null>(null)
+const confirmationAction = ref<'delete' | 'finish' | null>(null)
 const selectedUseQuantity = ref('high')
 // const selectedQuantityLevel = ref('low')
 const selectedStorage = ref('fridge')
@@ -1350,6 +1380,27 @@ const newItem = ref({
   category: 'fridge',
   volume: '',
   foodType: 'Other',
+})
+
+const confirmationItemName = computed(() => {
+  if (!confirmationItemId.value) return 'this item'
+  return inventory.value.find((item) => item.id === confirmationItemId.value)?.name || 'this item'
+})
+
+const confirmationConfig = computed(() => {
+  if (confirmationAction.value === 'finish') {
+    return {
+      title: 'Finish Food Item',
+      message: 'Are you sure you want to mark',
+      confirmLabel: 'Finish Item',
+    }
+  }
+
+  return {
+    title: 'Delete Food Item',
+    message: 'Are you sure you want to delete',
+    confirmLabel: 'Delete Item',
+  }
 })
 
 const foodTypeOptions = [
@@ -1544,6 +1595,22 @@ function escapeHtml(str: string): string {
   )
 }
 
+function openConfirmationModal(action: 'delete' | 'finish', id: string) {
+  confirmationAction.value = action
+  confirmationItemId.value = id
+  confirmationModalOpen.value = true
+}
+
+function closeConfirmationModal() {
+  confirmationModalOpen.value = false
+  confirmationAction.value = null
+  confirmationItemId.value = null
+}
+
+function requestDeleteItem(id: string) {
+  openConfirmationModal('delete', id)
+}
+
 function deleteItem(id: string) {
   inventory.value = inventory.value.filter((i) => i.id !== id)
   selectedDonationIds.value.delete(id)
@@ -1561,6 +1628,11 @@ function openUseModal(id: string) {
 function closeUseModal() {
   useModalOpen.value = false
   currentUseItemId.value = null
+}
+
+function requestFinishItem() {
+  if (!currentUseItemId.value) return
+  openConfirmationModal('finish', currentUseItemId.value)
 }
 
 function finishItem() {
@@ -1581,6 +1653,27 @@ function confirmUse() {
   item.quantityLevel = selectedUseQuantity.value
   closeUseModal()
   notifyMessage(`Updated "${item.name}" usage`)
+}
+
+function confirmPendingAction() {
+  const itemId = confirmationItemId.value
+  const action = confirmationAction.value
+
+  if (!itemId || !action) {
+    closeConfirmationModal()
+    return
+  }
+
+  closeConfirmationModal()
+
+  if (action === 'delete') {
+    deleteItem(itemId)
+    return
+  }
+
+  if (currentUseItemId.value === itemId) {
+    finishItem()
+  }
 }
 
 function singleDonate(id: string) {
@@ -1738,7 +1831,7 @@ function confirmAdd() {
 
   const expiryDays = calculateDaysUntil(newItem.value.expiryDate)
   const newId = `item_${nextId.value++}`
-  inventory.value.push({
+  const newItemData = {
     id: newId,
     name: newItem.value.name,
     description: newItem.value.description,
@@ -1756,7 +1849,21 @@ function confirmAdd() {
     foodType: newItem.value.foodType,
     searchTerms: newItem.value.name.toLowerCase(),
     quantityLevel: selectedQuantityLevel.value,
-  })
+  }
+  inventory.value = [...inventory.value, newItemData]
+
+  // Ensure the new item is visible after add
+  const visibleUnderCurrentFilter =
+    currentFilter.value === 'all' ||
+    currentFilter.value === newItemData.category ||
+    (currentFilter.value === 'near-expiry' && newItemData.expiryDays <= 3)
+
+  if (!visibleUnderCurrentFilter) {
+    currentFilter.value = 'all'
+  }
+
+  expandedCategories.value[selectedStorage.value as keyof typeof expandedCategories.value] = true
+
   closeAddModal()
   notifyMessage(`Added "${newItem.value.name}"`)
 }
@@ -2405,6 +2512,7 @@ hr {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 .food-item-card:hover {
   transform: translateY(-2px);
@@ -2420,7 +2528,7 @@ hr {
 }
 .checkbox-overlay {
   position: absolute;
-  top: 70px;
+  top: 20px;
   right: 20px;
   z-index: 5;
 }
@@ -2455,12 +2563,14 @@ hr {
 }
 
 .food-title {
-  font-size: 1.25rem;
+  font-size: 1.19rem;
   font-weight: 800;
   margin: 0;
   color: #0a1c2f;
   line-height: 1.3;
   word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 350px;
 }
 
 #fridgeGrid .food-title {
@@ -2474,7 +2584,7 @@ hr {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #48617c;
   width: auto;
@@ -2495,16 +2605,19 @@ hr {
   display: flex;
   justify-content: flex-end;
   max-width: calc(100% - 40px);
+  min-width: 0;
 }
 
 .volume-badge {
   background: #f1f5fa;
   border-radius: 20px;
   padding: 6px 14px;
-  font-size: 0.88rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
   color: #48617c;
+  overflow-wrap: anywhere;
 }
 
 .food-description {
@@ -2520,6 +2633,7 @@ hr {
   line-clamp: 2;
   overflow: hidden;
   min-height: 42px;
+  overflow-wrap: anywhere;
 }
 
 .card-meta {
@@ -2536,7 +2650,7 @@ hr {
   display: inline-block;
   padding: 6px 12px;
   border-radius: 20px;
-  font-size: 0.62rem;
+  font-size: 0.55rem;
   font-weight: 600;
   white-space: nowrap;
   max-width: 100%;
@@ -2604,7 +2718,7 @@ hr {
   gap: 12px;
   padding: 14px 20px 20px;
   border-top: 1px solid #eff3f8;
-  margin-top: 12px;
+  margin-top: auto;
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -2619,7 +2733,10 @@ hr {
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  flex: 0 1 auto;
+  flex: 1 1 0;
+  justify-content: center;
+  min-width: 0;
+  text-align: center;
 }
 .delete-item {
   color: #111827;
@@ -3064,7 +3181,8 @@ footer {
 
 .row2 {
   display: grid;
-  grid-template-columns: 0.1fr 1.6fr;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  align-items: center;
   gap: 10px;
 }
 
@@ -3073,19 +3191,29 @@ footer {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  min-width: 400px;
+  min-width: 0;
+  width: 100%;
 }
 
-.row4 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+.row2 > *,
+.row3 > *,
+.row5 > * {
+  min-width: 0;
 }
 
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+
+.row5 {
+  padding-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 300px;
+  width: 100%;
 }
 
 .row > * {
@@ -3170,6 +3298,34 @@ footer {
   background: #1f5a38;
 }
 
+.confirmation-overlay {
+  z-index: 10001;
+}
+
+.confirmation-modal {
+  max-width: 440px;
+}
+
+.confirmation-copy {
+  margin: 0;
+  text-align: center;
+  color: #48617c;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.confirmation-copy strong {
+  color: #15314f;
+}
+
+.modal-danger {
+  background: #b91c1c;
+}
+
+.modal-danger:hover {
+  background: #991b1b;
+}
+
 .qty-progress-wrapper {
   margin-bottom: 14px;
 }
@@ -3206,6 +3362,7 @@ footer {
   width: calc(100% - 40px);
   margin-left: 20px;
   margin-right: 20px;
+  min-width: 0;
 }
 
 .mobile-top-shell,
@@ -3611,6 +3768,7 @@ footer {
     justify-content: center;
     gap: 0.5rem;
     min-height: calc(2 * 1.3em);
+    width: 100%;
   }
 
   .food-title {
@@ -3894,6 +4052,7 @@ footer {
   .card-badges {
     top: 16px;
     right: 14px;
+    max-width: calc(100% - 28px);
   }
 
   .food-title {
